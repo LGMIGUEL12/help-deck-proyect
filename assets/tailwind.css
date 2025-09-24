@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn-primary {
+    @apply bg-[#13bc74] text-black;
+  }
+
+  .btn-secondary {
+    @apply bg-[#00bdef] text-black;
+  }
+
+  table thead th,
+  table tbody td {
+    @apply !text-black;
+  }
+}

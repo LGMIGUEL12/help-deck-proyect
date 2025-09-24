@@ -1,0 +1,41 @@
+// tsconfig.json (en la raíz de tu proyecto)
+{
+  "extends": "./.nuxt/tsconfig.json", // <-- ¡Esta línea es clave!
+  "compilerOptions": {
+    // Puedes tener otras opciones aquí, pero 'extends' es lo más importante
+    // para que TypeScript sepa sobre los alias de Nuxt.
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "skipLibCheck": true,
+    "jsx": "preserve",
+    "paths": { // Asegúrate de que esto también lo tienes, a veces es útil duplicar.
+      "#app": [
+        "./.nuxt/types/app"
+      ],
+      "#imports": [
+        "./.nuxt/imports"
+      ],
+      // Otras rutas si las tienes
+    }
+  },
+  "include": [
+    "./**/*",
+    "./.nuxt/types/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
+
+// {
+//   "compilerOptions": {
+//     "moduleResolution": "node",
+//     "types": ["node"],
+//     "allowSyntheticDefaultImports": true,
+//     "esModuleInterop": true
+//   }
+// }
