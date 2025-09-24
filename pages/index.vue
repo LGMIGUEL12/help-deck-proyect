@@ -46,50 +46,26 @@
       </div>
     </main>
 
-    <UModal v-model="isModalOpen" :ui="{ width: 'sm:max-w-lg', padding: 'p-0' }">
-      <div class="bg-white rounded-lg p-6">
-        <h2 class="text-2xl font-bold text-black mb-6">{{ editingTicket ? 'Edit Ticket' : 'New Ticket' }}</h2>
+    <FormModal
+      :is-open="isModalOpen"
+      @update:is-open="isModalOpen = $event"
+      :title="editingTicket ? 'Edit Ticket' : 'New Ticket'"
+      :fields="ticketFields"
+      v-model="ticketForm"
+      :save-button-label="editingTicket ? 'Update' : 'Create'"
+      @cancel="closeModal"
+      @save="saveTicket"
+    />
 
-        <div class="space-y-5">
-          <div>
-            <label class="block text-sm font-semibold text-black mb-2">Subject</label>
-            <input v-model="ticketForm.subject" placeholder="Enter subject"
-              class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-black focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-400" />
-          </div>
-          <div>
-            <label class="block text-sm font-semibold text-black mb-2">Status</label>
-            <input v-model="ticketForm.status" placeholder="Enter status"
-              class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-black focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-400" />
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold text-black mb-2">Agent</label>
-            <input v-model="ticketForm.agent" placeholder="Enter agent"
-              class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-black focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-400" />
-          </div>
-        </div>
-
-        <div class="flex justify-end gap-3 mt-6">
-          <UButton style="background-color: #e0e0e0; color: black" size="lg" @click="closeModal">Cancel</UButton>
-          <UButton style="background-color: #4CAF50; color: white" size="lg" @click="saveTicket">{{ editingTicket ?
-            'Update'
-            : 'Create' }}</UButton>
-        </div>
-      </div>
-    </UModal>
-
-    <UModal v-model="isDeleteModalOpen" :ui="{ width: 'sm:max-w-lg', padding: 'p-0' }">
-      <div class="bg-white rounded-lg p-6">
-        <h2 class="text-2xl font-bold text-black mb-4">Confirm Delete</h2>
-        <p class="text-black mb-6">Are you sure you want to delete this ticket?</p>
-
-        <div class="flex justify-end gap-3">
-          <UButton style="background-color: #e0e0e0; color: black" size="lg" @click="isDeleteModalOpen = false">Cancel
-          </UButton>
-          <UButton style="background-color: #EF5350; color: white" size="lg" @click="deleteTicket">Delete</UButton>
-        </div>
-      </div>
-    </UModal>
+    <ConfirmModal
+      :is-open="isDeleteModalOpen"
+      @update:is-open="isDeleteModalOpen = $event"
+      title="Confirm Delete"
+      message="Are you sure you want to delete this ticket?"
+      confirm-label="Delete"
+      @cancel="isDeleteModalOpen = false"
+      @confirm="deleteTicket"
+    />
   </div>
 </template>
 
@@ -117,14 +93,27 @@
     { key: 'team', label: 'Article Tiam' }
   ]
 
+  const statusOptions = [
+    { label: 'Low', value: 'Low' },
+    { label: 'Medium', value: 'Medium' },
+    { label: 'High', value: 'High' },
+    { label: 'Critical', value: 'Critical' }
+  ]
+
+  const ticketFields = [
+    { key: 'subject', label: 'Subject', placeholder: 'Enter subject', type: 'input' },
+    { key: 'status', label: 'Status', placeholder: 'Select priority', type: 'select', options: statusOptions },
+    { key: 'email', label: 'Email', placeholder: 'Enter email', type: 'email' }
+  ]
+
   const isModalOpen = ref(false)
   const isDeleteModalOpen = ref(false)
   const editingTicket = ref(null)
   const ticketToDelete = ref(null)
   const ticketForm = ref({
     subject: '',
-    status: '',
-    agent: ''
+    status: 'Low',
+    email: ''
   })
 
   const editTicket = (ticket) => {
@@ -132,7 +121,7 @@
     ticketForm.value = {
       subject: ticket.subject,
       status: ticket.status,
-      agent: ticket.agent
+      email: ticket.email || ticket.agent || ''
     }
     isModalOpen.value = true
   }
@@ -142,8 +131,8 @@
     editingTicket.value = null
     ticketForm.value = {
       subject: '',
-      status: '',
-      agent: ''
+      status: 'Low',
+      email: ''
     }
   }
 
