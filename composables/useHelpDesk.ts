@@ -1,10 +1,24 @@
+interface Ticket {
+  id: string
+  subject: string
+  status: string
+  agent: string
+}
+
+interface KnowledgeItem {
+  id: string
+  subject: string
+  status: string
+  team: string
+}
+
 export const useHelpDesk = () => {
-  const tickets = ref([
+  const tickets = ref<Ticket[]>([
     { id: '10001', subject: '240', status: '232', agent: 'Article Title 300421' },
     { id: '300002', subject: 'Pratus 303', status: 'Totuns 233', agent: 'Knowledge Agent 500411' }
   ])
 
-  const knowledgeBase = ref([
+  const knowledgeBase = ref<KnowledgeItem[]>([
     { id: '30014', subject: '224', status: '233', team: 'Article Tiestas 300424' },
     { id: '20014', subject: 'Prapkin 031', status: 'Fotuns 221', team: 'Knowledge Agent 300403' },
     { id: '20044', subject: 'Article 230', status: 'Turw 231', team: 'Article Title 500442' }
@@ -36,35 +50,35 @@ export const useHelpDesk = () => {
     )
   })
 
-  const addTicket = (ticket) => {
+  const addTicket = (ticket: Omit<Ticket, 'id'>) => {
     const newId = String(Math.max(...tickets.value.map(t => parseInt(t.id)), 0) + 1)
     tickets.value.unshift({ ...ticket, id: newId })
   }
 
-  const updateTicket = (id, updates) => {
+  const updateTicket = (id: string, updates: Partial<Ticket>) => {
     const index = tickets.value.findIndex(t => t.id === id)
     if (index !== -1) {
       tickets.value[index] = { ...tickets.value[index], ...updates }
     }
   }
 
-  const deleteTicket = (id) => {
+  const deleteTicket = (id: string) => {
     tickets.value = tickets.value.filter(t => t.id !== id)
   }
 
-  const addKnowledge = (item) => {
+  const addKnowledge = (item: Omit<KnowledgeItem, 'id'>) => {
     const newId = String(Math.max(...knowledgeBase.value.map(k => parseInt(k.id)), 0) + 1)
     knowledgeBase.value.unshift({ ...item, id: newId })
   }
 
-  const updateKnowledge = (id, updates) => {
+  const updateKnowledge = (id: string, updates: Partial<KnowledgeItem>) => {
     const index = knowledgeBase.value.findIndex(k => k.id === id)
     if (index !== -1) {
       knowledgeBase.value[index] = { ...knowledgeBase.value[index], ...updates }
     }
   }
 
-  const deleteKnowledge = (id) => {
+  const deleteKnowledge = (id: string) => {
     knowledgeBase.value = knowledgeBase.value.filter(k => k.id !== id)
   }
 
