@@ -61,11 +61,13 @@
             </div>
 
             <div class="flex justify-center gap-4 flex-wrap">
-              <NuxtLink to="/tickets">
-                <UButton style="background-color: white; color: #3d5a52;" class="px-6 py-3 font-medium shadow-lg">
-                  Submit a Ticket
-                </UButton>
-              </NuxtLink>
+              <UButton
+                @click="handleSubmitTicket"
+                style="background-color: white; color: #3d5a52;"
+                class="px-6 py-3 font-medium shadow-lg cursor-pointer"
+              >
+                Submit a Ticket
+              </UButton>
               <UButton style="background-color: #4CAF50; color: white;" class="px-6 py-3 font-medium shadow-lg">
                 Browse Knowledge Base
               </UButton>
@@ -111,9 +113,30 @@
         </div>
       </div>
     </footer>
+
+    <!-- Login Required Modal -->
+    <LoginRequiredModal :isOpen="showLoginModal" @close="showLoginModal = false" />
   </div>
 </template>
 
 <script setup>
 const searchQuery = ref('')
+const showLoginModal = ref(false)
+
+const { isLoggedIn, checkAuth } = useAuth()
+
+// Check authentication status on page load
+onMounted(() => {
+  checkAuth()
+})
+
+const handleSubmitTicket = () => {
+  if (isLoggedIn.value) {
+    // Usuario está logueado, navegar a tickets
+    navigateTo('/tickets')
+  } else {
+    // Usuario no está logueado, mostrar modal
+    showLoginModal.value = true
+  }
+}
 </script>

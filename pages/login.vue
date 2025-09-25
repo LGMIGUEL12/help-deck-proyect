@@ -45,17 +45,34 @@
 
           <!-- Password Field -->
           <div>
-            <input
-              v-model="password"
-              type="password"
-              placeholder="Password"
-              class="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:border-transparent bg-white text-gray-900"
-              :class="{
-                'border-gray-200 focus:ring-teal-500': !passwordError,
-                'border-red-500 focus:ring-red-500': passwordError
-              }"
-              required
-            />
+            <div class="relative">
+              <input
+                v-model="password"
+                :type="showPassword ? 'text' : 'password'"
+                placeholder="Password"
+                class="w-full px-4 py-3 pr-12 rounded-lg border focus:outline-none focus:ring-2 focus:border-transparent bg-white text-gray-900"
+                :class="{
+                  'border-gray-200 focus:ring-teal-500': !passwordError,
+                  'border-red-500 focus:ring-red-500': passwordError
+                }"
+                required
+              />
+              <button
+                type="button"
+                @click="showPassword = !showPassword"
+                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                <!-- Eye icon (show password) -->
+                <svg v-if="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <!-- Eye slash icon (hide password) -->
+                <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                </svg>
+              </button>
+            </div>
             <p v-if="passwordError" class="text-red-500 text-xs mt-1">{{ passwordError }}</p>
           </div>
 
@@ -138,6 +155,7 @@ const password = ref('')
 const rememberMe = ref(false)
 const emailError = ref('')
 const passwordError = ref('')
+const showPassword = ref(false)
 
 // Email validation schema
 const emailSchema = Joi.string()
@@ -175,6 +193,8 @@ watch(password, (newPassword) => {
   }
 })
 
+const { login } = useAuth()
+
 const handleLogin = () => {
   // Validate email before submission
   const emailValidation = emailSchema.validate(email.value)
@@ -190,7 +210,18 @@ const handleLogin = () => {
     return
   }
 
-  // Handle login logic here
-  console.log('Login attempt:', { email: email.value, password: password.value, rememberMe: rememberMe.value })
+  // Simulate login success and set user data
+  const userData = {
+    email: email.value,
+    name: email.value.split('@')[0] // Use email username as name
+  }
+
+  // Login the user
+  login(userData)
+
+  // Redirect to tickets page
+  navigateTo('/tickets')
+
+  console.log('Login successful:', { email: email.value, password: password.value, rememberMe: rememberMe.value })
 }
 </script>

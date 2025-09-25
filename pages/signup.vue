@@ -53,10 +53,14 @@
 
           <!-- Birth Date Field -->
           <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de nacimiento</label>
             <input
               v-model="birthDate"
               type="date"
-              class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white text-gray-900"
+              max="2006-12-31"
+              min="1930-01-01"
+              class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white text-gray-900 cursor-pointer"
+              style="color-scheme: light;"
               required
             />
           </div>
@@ -90,33 +94,67 @@
 
           <!-- Password Field -->
           <div>
-            <input
-              v-model="password"
-              type="password"
-              placeholder="Contraseña"
-              class="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:border-transparent bg-white text-gray-900"
-              :class="{
-                'border-gray-200 focus:ring-teal-500': !passwordError,
-                'border-red-500 focus:ring-red-500': passwordError
-              }"
-              required
-            />
+            <div class="relative">
+              <input
+                v-model="password"
+                :type="showPassword ? 'text' : 'password'"
+                placeholder="Contraseña"
+                class="w-full px-4 py-3 pr-12 rounded-lg border focus:outline-none focus:ring-2 focus:border-transparent bg-white text-gray-900"
+                :class="{
+                  'border-gray-200 focus:ring-teal-500': !passwordError,
+                  'border-red-500 focus:ring-red-500': passwordError
+                }"
+                required
+              />
+              <button
+                type="button"
+                @click="showPassword = !showPassword"
+                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                <!-- Eye icon (show password) -->
+                <svg v-if="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <!-- Eye slash icon (hide password) -->
+                <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                </svg>
+              </button>
+            </div>
             <p v-if="passwordError" class="text-red-500 text-xs mt-1">{{ passwordError }}</p>
           </div>
 
           <!-- Confirm Password Field -->
           <div>
-            <input
-              v-model="confirmPassword"
-              type="password"
-              placeholder="Confirmar contraseña"
-              class="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:border-transparent bg-white text-gray-900"
-              :class="{
-                'border-gray-200 focus:ring-teal-500': !confirmPasswordError,
-                'border-red-500 focus:ring-red-500': confirmPasswordError
-              }"
-              required
-            />
+            <div class="relative">
+              <input
+                v-model="confirmPassword"
+                :type="showConfirmPassword ? 'text' : 'password'"
+                placeholder="Confirmar contraseña"
+                class="w-full px-4 py-3 pr-12 rounded-lg border focus:outline-none focus:ring-2 focus:border-transparent bg-white text-gray-900"
+                :class="{
+                  'border-gray-200 focus:ring-teal-500': !confirmPasswordError,
+                  'border-red-500 focus:ring-red-500': confirmPasswordError
+                }"
+                required
+              />
+              <button
+                type="button"
+                @click="showConfirmPassword = !showConfirmPassword"
+                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                <!-- Eye icon (show password) -->
+                <svg v-if="!showConfirmPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <!-- Eye slash icon (hide password) -->
+                <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                </svg>
+              </button>
+            </div>
             <p v-if="confirmPasswordError" class="text-red-500 text-xs mt-1">{{ confirmPasswordError }}</p>
           </div>
 
@@ -192,6 +230,8 @@ const confirmPassword = ref('')
 const emailError = ref('')
 const passwordError = ref('')
 const confirmPasswordError = ref('')
+const showPassword = ref(false)
+const showConfirmPassword = ref(false)
 
 // Email validation schema
 const emailSchema = Joi.string()
@@ -257,6 +297,8 @@ const isFormValid = computed(() => {
          !confirmPasswordError.value
 })
 
+const { login } = useAuth()
+
 const handleSignUp = () => {
   // Validate email before submission
   const emailValidation = emailSchema.validate(email.value)
@@ -277,8 +319,23 @@ const handleSignUp = () => {
     return
   }
 
-  // Handle sign up logic here
-  console.log('Sign up attempt:', {
+  // Simulate signup success and set user data
+  const userData = {
+    email: email.value,
+    name: `${firstName.value} ${lastName.value}`,
+    firstName: firstName.value,
+    lastName: lastName.value,
+    birthDate: birthDate.value,
+    phoneNumber: phoneNumber.value
+  }
+
+  // Login the user automatically after signup
+  login(userData)
+
+  // Redirect to tickets page
+  navigateTo('/tickets')
+
+  console.log('Signup successful:', {
     firstName: firstName.value,
     lastName: lastName.value,
     birthDate: birthDate.value,
