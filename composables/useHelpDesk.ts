@@ -15,7 +15,14 @@ interface KnowledgeItem {
 export const useHelpDesk = () => {
   const tickets = ref<Ticket[]>([
     { id: '10001', subject: '240', status: '232', agent: 'Article Title 300421' },
-    { id: '300002', subject: 'Pratus 303', status: 'Totuns 233', agent: 'Knowledge Agent 500411' }
+    { id: '300002', subject: 'Pratus 303', status: 'Totuns 233', agent: 'Knowledge Agent 500411' },
+    { id: '8000', subject: 'Pratus 303', status: 'Totuns 233', agent: 'Knowledge Agent 500411' },
+    { id: '65465', subject: 'Pratus 303', status: 'Totuns 233', agent: 'Knowledge Agent 500411' },
+    { id: '879456', subject: 'Pratus 303', status: 'Totuns 233', agent: 'Knowledge Agent 500411' },
+    { id: '65985', subject: 'Pratus 303', status: 'Totuns 233', agent: 'Knowledge Agent 500411' },
+    { id: '874655', subject: 'Pratus 303', status: 'Totuns 233', agent: 'Knowledge Agent 500411' },
+    { id: '665558', subject: 'Pratus 303', status: 'Totuns 233', agent: 'Knowledge Agent 500411' }
+
   ])
 
   const knowledgeBase = ref<KnowledgeItem[]>([

@@ -22,44 +22,55 @@
       </nav>
     </header>
 
-    <main class="flex-1 flex items-center justify-center px-8">
-      <div class="max-w-4xl w-full">
-        <div class="text-center mb-8">
-          <h1 class="text-4xl md:text-5xl font-bold text-white mb-8">
-            How can we help you today?
-          </h1>
+    <main class="flex-1 relative">
+      <!-- Background image with overlay -->
+      <div
+        class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style="background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');"
+      ></div>
+      <!-- Overlay for better text readability -->
+      <div class="absolute inset-0 bg-black bg-opacity-40"></div>
 
-          <div class="flex gap-2 mb-8">
-            <div class="relative flex-1">
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search"
-                class="w-full px-12 py-4 rounded-lg text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-            <UButton style="background-color: #2563eb;" class="px-8 py-4">
-              <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </UButton>
-          </div>
+      <!-- Content -->
+      <div class="relative flex items-center justify-center px-8 h-full">
+        <div class="max-w-4xl w-full">
+          <div class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-8">
+              How can we help you today?
+            </h1>
 
-          <div class="flex justify-center gap-4 flex-wrap">
-            <NuxtLink to="/tickets">
-              <UButton style="background-color: white; color: #3d5a52;" class="px-6 py-3 font-medium">
-                Submit a Ticket
+            <div class="flex gap-2 mb-8 max-w-2xl mx-auto">
+              <div class="relative flex-1">
+                <input
+                  v-model="searchQuery"
+                  type="text"
+                  placeholder="Search"
+                  class="w-full px-12 py-4 rounded-lg text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg border-0"
+                />
+                <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <UButton style="background-color: #2563eb;" class="px-8 py-4 shadow-lg">
+                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
               </UButton>
-            </NuxtLink>
-            <UButton style="background-color: #4CAF50; color: white;" class="px-6 py-3 font-medium">
-              Browse Knowledge Base
-            </UButton>
-            <UButton style="background-color: #2196F3; color: white;" class="px-6 py-3 font-medium">
-              Contact Support
-            </UButton>
+            </div>
+
+            <div class="flex justify-center gap-4 flex-wrap">
+              <NuxtLink to="/tickets">
+                <UButton style="background-color: white; color: #3d5a52;" class="px-6 py-3 font-medium shadow-lg">
+                  Submit a Ticket
+                </UButton>
+              </NuxtLink>
+              <UButton style="background-color: #4CAF50; color: white;" class="px-6 py-3 font-medium shadow-lg">
+                Browse Knowledge Base
+              </UButton>
+              <UButton style="background-color: #2196F3; color: white;" class="px-6 py-3 font-medium shadow-lg">
+                Contact Support
+              </UButton>
+            </div>
           </div>
         </div>
       </div>

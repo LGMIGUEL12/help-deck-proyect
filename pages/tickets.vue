@@ -1,41 +1,44 @@
 <template>
-  <div class="flex h-screen bg-gray-100">
+  <div class="flex h-screen overflow-hidden bg-gray-100">
     <!-- Sidebar -->
-    <div class="w-64 text-white flex flex-col" style="background-color: #3a4b40">
-      <div class="px-8 py-6 border-b" style="border-color: #9db0a3">
-        <h1 class="text-2xl font-semibold">Help Desk</h1>
+    <div :class="['text-white flex flex-col fixed h-screen transition-all duration-300', sidebarOpen ? 'w-64' : 'w-20']" style="background-color: #3a4b40">
+      <div class="px-4 py-6 border-b flex items-center justify-between" style="border-color: #9db0a3">
+        <h1 v-if="sidebarOpen" class="text-2xl font-semibold">Help Desk</h1>
+        <button @click="sidebarOpen = !sidebarOpen" class="text-white hover:text-gray-300 transition-colors" :class="{ 'mx-auto': !sidebarOpen }">
+          <UIcon name="i-heroicons-bars-3" class="w-6 h-6" />
+        </button>
       </div>
       <nav class="flex-1 px-4 py-6 space-y-2">
         <NuxtLink to="/home"
           class="flex items-center px-4 py-2 text-gray-300 hover:text-white rounded-md transition-colors hover:bg-[#9db0a3]">
-          <UIcon name="i-heroicons-home" class="w-5 h-5 mr-3" />
-          Home
+          <UIcon name="i-heroicons-home" class="w-5 h-5 min-w-5" :class="{ 'mr-3': sidebarOpen }" />
+          <span v-if="sidebarOpen">Home</span>
         </NuxtLink>
         <NuxtLink to="/tickets" class="flex items-center px-4 py-2 text-white rounded-md" style="background-color: #9db0a3">
-          <UIcon name="i-heroicons-ticket" class="w-5 h-5 mr-3" />
-          Console
+          <UIcon name="i-heroicons-ticket" class="w-5 h-5 min-w-5" :class="{ 'mr-3': sidebarOpen }" />
+          <span v-if="sidebarOpen">Console</span>
         </NuxtLink>
         <a href="#"
           class="flex items-center px-4 py-2 text-gray-300 hover:text-white rounded-md transition-colors hover:bg-[#9db0a3]">
-          <UIcon name="i-heroicons-cog" class="w-5 h-5 mr-3" />
-          Setting
+          <UIcon name="i-heroicons-cog" class="w-5 h-5 min-w-5" :class="{ 'mr-3': sidebarOpen }" />
+          <span v-if="sidebarOpen">Setting</span>
         </a>
         <a href="#"
           class="flex items-center px-4 py-2 text-gray-300 hover:text-white rounded-md transition-colors hover:bg-[#9db0a3]">
-          <UIcon name="i-heroicons-user" class="w-5 h-5 mr-3" />
-          Ustar
+          <UIcon name="i-heroicons-user" class="w-5 h-5 min-w-5" :class="{ 'mr-3': sidebarOpen }" />
+          <span v-if="sidebarOpen">Ustar</span>
         </a>
         <a href="#"
           class="flex items-center px-4 py-2 text-gray-300 hover:text-white rounded-md transition-colors hover:bg-[#9db0a3]">
-          <UIcon name="i-heroicons-user-group" class="w-5 h-5 mr-3" />
-          Uove
+          <UIcon name="i-heroicons-user-group" class="w-5 h-5 min-w-5" :class="{ 'mr-3': sidebarOpen }" />
+          <span v-if="sidebarOpen">Uove</span>
         </a>
       </nav>
     </div>
 
     <!-- Main content -->
-    <div class="flex-1 flex flex-col">
-    <header class="bg-white shadow-sm">
+    <div :class="['flex-1 flex flex-col overflow-y-auto transition-all duration-300', sidebarOpen ? 'ml-64' : 'ml-20']">
+    <header class="bg-white shadow-sm sticky top-0 z-10">
       <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
         <h1 class="text-2xl font-bold text-gray-900">Help Desk</h1>
         <div class="flex items-center space-x-4">
@@ -54,7 +57,7 @@
         </div>
       </div>
     </header>
-    <main class="flex-1 p-6">
+    <main class="flex-1 p-6 bg-gray-100">
       <div class="mb-8">
         <h2 class="text-xl font-semibold mb-4" style="color: black">Open Tickets</h2>
         <div class="bg-white rounded-lg shadow">
@@ -106,6 +109,8 @@
 </template>
 
 <script setup>
+  const sidebarOpen = ref(true)
+
   const {
     searchQuery,
     filteredTickets,
