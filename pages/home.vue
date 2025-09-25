@@ -16,9 +16,11 @@
             <a href="#" class="text-white hover:text-gray-200 transition-colors">Community Forums</a>
           </div>
         </div>
-        <UButton style="background-color: #a8d5ba; color: #3d5a52;" class="font-semibold">
-          Login/Sign Up
-        </UButton>
+        <NuxtLink to="/login">
+          <UButton style="background-color: #a8d5ba; color: #3d5a52;" class="font-semibold">
+            Login
+          </UButton>
+        </NuxtLink>
       </nav>
     </header>
 
