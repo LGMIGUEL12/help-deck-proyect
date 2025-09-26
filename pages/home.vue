@@ -33,7 +33,7 @@
             </NuxtLink>
             <NuxtLink to="/tickets">
               <UButton style="background-color: #a8d5ba; color: #3d5a52;" class="font-semibold text-sm">
-                Tickets
+                Mis Tickets
               </UButton>
             </NuxtLink>
             <UButton @click="handleLogout" style="background-color: #dc2626; color: white;" class="font-semibold text-sm">

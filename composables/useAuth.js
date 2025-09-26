@@ -27,7 +27,7 @@ export const useAuth = () => {
       console.error('Error de login:', error)
       return {
         success: false,
-        error: error.data?.statusMessage || error.statusMessage || 'Error de conexión'
+        error: error.data?.message || error.message || 'Error de conexión'
       }
     }
   }
