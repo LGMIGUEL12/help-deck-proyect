@@ -16,60 +16,110 @@
             <a href="#" class="text-white hover:text-gray-200 transition-colors">Community Forums</a>
           </div>
         </div>
-        <UButton style="background-color: #a8d5ba; color: #3d5a52;" class="font-semibold">
-          Login/Sign Up
-        </UButton>
+        <NuxtLink to="/login">
+          <UButton style="background-color: #a8d5ba; color: #3d5a52;" class="font-semibold">
+            Login
+          </UButton>
+        </NuxtLink>
       </nav>
     </header>
 
-    <main class="flex-1 relative">
-      <!-- Background image with overlay -->
-      <div
-        class="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style="background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');"
-      ></div>
-      <!-- Overlay for better text readability -->
-      <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+    <main class="flex-1 flex items-center justify-center px-4 py-8">
+      <!-- Support Center Card -->
+      <div class="bg-white rounded-2xl shadow-2xl max-w-6xl w-full overflow-hidden">
+        <!-- Header Section -->
+        <div class="flex items-start justify-between p-8 bg-gradient-to-r from-blue-50 to-purple-50">
+          <!-- Left Side: Welcome Text and Image -->
+          <div class="flex items-center">
+            <div class="w-40 h-28 rounded-2xl overflow-hidden mr-8 flex-shrink-0 bg-blue-100">
+              <img
+                src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80"
+                alt="Support Team"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <div>
+              <h1 class="text-4xl font-bold text-gray-800 leading-tight">
+                Welcome to Our<br>Support Center
+              </h1>
+            </div>
+          </div>
 
-      <!-- Content -->
-      <div class="relative flex items-center justify-center px-8 h-full">
-        <div class="max-w-4xl w-full">
-          <div class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-bold text-white mb-8">
-              How can we help you today?
-            </h1>
-
-            <div class="flex gap-2 mb-8 max-w-2xl mx-auto">
-              <div class="relative flex-1">
-                <input
-                  v-model="searchQuery"
-                  type="text"
-                  placeholder="Search"
-                  class="w-full px-12 py-4 rounded-lg text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-lg border-0"
-                />
-                <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <UButton style="background-color: #2563eb;" class="px-8 py-4 shadow-lg">
-                <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </UButton>
+          <!-- Right Side: Quick Access Icons -->
+          <div class="grid grid-cols-2 gap-4 min-w-[280px]">
+            <div class="flex flex-col items-center p-3 hover:bg-white hover:shadow-md rounded-xl transition-all cursor-pointer">
+              <svg class="w-10 h-10 text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span class="text-sm font-medium text-gray-700 text-center">Troubleshooting</span>
             </div>
 
-            <div class="flex justify-center gap-4 flex-wrap">
-              <NuxtLink to="/tickets">
-                <UButton style="background-color: white; color: #3d5a52;" class="px-6 py-3 font-medium shadow-lg">
-                  Submit a Ticket
-                </UButton>
-              </NuxtLink>
-              <UButton style="background-color: #4CAF50; color: white;" class="px-6 py-3 font-medium shadow-lg">
-                Browse Knowledge Base
-              </UButton>
-              <UButton style="background-color: #2196F3; color: white;" class="px-6 py-3 font-medium shadow-lg">
-                Contact Support
-              </UButton>
+            <div class="flex flex-col items-center p-3 hover:bg-white hover:shadow-md rounded-xl transition-all cursor-pointer">
+              <svg class="w-10 h-10 text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="text-sm font-medium text-gray-700 text-center">FAQs</span>
+            </div>
+
+            <div class="flex flex-col items-center p-3 hover:bg-white hover:shadow-md rounded-xl transition-all cursor-pointer">
+              <svg class="w-10 h-10 text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span class="text-sm font-medium text-gray-700 text-center">My Account</span>
+            </div>
+
+            <div class="flex flex-col items-center p-3 hover:bg-white hover:shadow-md rounded-xl transition-all cursor-pointer">
+              <svg class="w-10 h-10 text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a4 4 0 118 0v4m-4 8c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              </svg>
+              <span class="text-sm font-medium text-gray-700 text-center">Book a Call</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Options Section -->
+        <div class="p-8">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Browse Knowledge Base -->
+            <div class="bg-gray-50 rounded-lg p-6 text-center hover:shadow-lg transition-shadow">
+              <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-white rounded-lg shadow-sm">
+                <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">Browse<br>Knowledge Base</h3>
+              <button class="text-teal-600 hover:text-teal-700 font-medium">Sap action</button>
+            </div>
+
+            <!-- Submit a Ticket -->
+            <div class="bg-gray-50 rounded-lg p-6 text-center hover:shadow-lg transition-shadow">
+              <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-white rounded-lg shadow-sm">
+                <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">Submit a Ticket</h3>
+              <p class="text-sm text-gray-600 mb-4">Pase Suprsong schen</p>
+              <button
+                @click="handleSubmitTicket"
+                class="text-teal-600 hover:text-teal-700 font-medium"
+              >
+                Sap action
+              </button>
+            </div>
+
+            <!-- Live Chat -->
+            <div class="bg-gray-50 rounded-lg p-6 text-center hover:shadow-lg transition-shadow">
+              <div class="w-16 h-16 mx-auto mb-4 flex items-center justify-center bg-white rounded-lg shadow-sm">
+                <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">Live Chat</h3>
+              <p class="text-sm text-gray-600 mb-4">Tieser Ho Pes Soming<br>Suppoe</p>
+              <button class="text-orange-500 hover:text-orange-600 font-medium">Sap action</button>
             </div>
           </div>
         </div>
@@ -109,9 +159,30 @@
         </div>
       </div>
     </footer>
+
+    <!-- Login Required Modal -->
+    <LoginRequiredModal :isOpen="showLoginModal" @close="showLoginModal = false" />
   </div>
 </template>
 
 <script setup>
 const searchQuery = ref('')
+const showLoginModal = ref(false)
+
+const { isLoggedIn, checkAuth } = useAuth()
+
+// Check authentication status on page load
+onMounted(() => {
+  checkAuth()
+})
+
+const handleSubmitTicket = () => {
+  if (isLoggedIn.value) {
+    // Usuario está logueado, navegar a tickets
+    navigateTo('/tickets')
+  } else {
+    // Usuario no está logueado, mostrar modal
+    showLoginModal.value = true
+  }
+}
 </script>
