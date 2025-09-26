@@ -16,11 +16,31 @@
             <a href="#" class="text-white hover:text-gray-200 transition-colors">Community Forums</a>
           </div>
         </div>
-        <NuxtLink to="/login">
-          <UButton style="background-color: #a8d5ba; color: #3d5a52;" class="font-semibold">
-            Login
-          </UButton>
-        </NuxtLink>
+        <div v-if="!isLoggedIn">
+          <NuxtLink to="/login">
+            <UButton style="background-color: #a8d5ba; color: #3d5a52;" class="font-semibold">
+              Login
+            </UButton>
+          </NuxtLink>
+        </div>
+        <div v-else class="flex items-center space-x-4">
+          <span class="text-white">Hola, {{ user?.name }}</span>
+          <div class="flex space-x-2">
+            <NuxtLink v-if="isAdmin()" to="/admin">
+              <UButton style="background-color: #a8d5ba; color: #3d5a52;" class="font-semibold text-sm">
+                Admin Panel
+              </UButton>
+            </NuxtLink>
+            <NuxtLink to="/tickets">
+              <UButton style="background-color: #a8d5ba; color: #3d5a52;" class="font-semibold text-sm">
+                Mis Tickets
+              </UButton>
+            </NuxtLink>
+            <UButton @click="handleLogout" style="background-color: #dc2626; color: white;" class="font-semibold text-sm">
+              Logout
+            </UButton>
+          </div>
+        </div>
       </nav>
     </header>
 
@@ -169,12 +189,16 @@
 const searchQuery = ref('')
 const showLoginModal = ref(false)
 
-const { isLoggedIn, checkAuth } = useAuth()
+const { isLoggedIn, user, checkAuth, logout, isAdmin } = useAuth()
 
 // Check authentication status on page load
 onMounted(() => {
   checkAuth()
 })
+
+const handleLogout = () => {
+  logout()
+}
 
 const handleSubmitTicket = () => {
   if (isLoggedIn.value) {

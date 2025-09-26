@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Read(//c/Users/ramos/Downloads/**)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

@@ -4,11 +4,39 @@ export const useAuth = () => {
   const user = useState('auth.user', () => null)
 
   // Función para iniciar sesión
-  const login = (userData) => {
+  const login = async (email, password) => {
+    try {
+      const data = await $fetch('/api/auth/login', {
+        method: 'POST',
+        body: { email, password }
+      })
+
+      if (data.success) {
+        isLoggedIn.value = true
+        user.value = data.user
+
+        // Guardar en localStorage para persistencia
+        if (process.client) {
+          localStorage.setItem('isLoggedIn', 'true')
+          localStorage.setItem('user', JSON.stringify(data.user))
+        }
+
+        return { success: true, user: data.user }
+      }
+    } catch (error) {
+      console.error('Error de login:', error)
+      return {
+        success: false,
+        error: error.data?.message || error.message || 'Error de conexión'
+      }
+    }
+  }
+
+  // Función para login simple (mantenida para compatibilidad)
+  const loginSimple = (userData) => {
     isLoggedIn.value = true
     user.value = userData
 
-    // Aquí podrías guardar en localStorage si necesitas persistencia
     if (process.client) {
       localStorage.setItem('isLoggedIn', 'true')
       localStorage.setItem('user', JSON.stringify(userData))
@@ -39,11 +67,28 @@ export const useAuth = () => {
     }
   }
 
+  // Funciones de verificación de roles
+  const isAdmin = () => {
+    return user.value?.role === 'admin'
+  }
+
+  const isUser = () => {
+    return user.value?.role === 'user'
+  }
+
+  const hasRole = (role) => {
+    return user.value?.role === role
+  }
+
   return {
     isLoggedIn: readonly(isLoggedIn),
     user: readonly(user),
     login,
+    loginSimple,
     logout,
-    checkAuth
+    checkAuth,
+    isAdmin,
+    isUser,
+    hasRole
   }
 }
