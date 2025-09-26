@@ -109,6 +109,10 @@
 </template>
 
 <script setup>
+definePageMeta({
+  middleware: 'auth'
+})
+
   const sidebarOpen = ref(true)
 
   const {

@@ -89,12 +89,18 @@
             <a href="#" class="text-teal-600 hover:text-teal-700">Forgot password?</a>
           </div>
 
+          <!-- Error Message -->
+          <div v-if="loginError" class="text-red-500 text-sm text-center">
+            {{ loginError }}
+          </div>
+
           <!-- Sign In Button -->
           <button
             type="submit"
-            class="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 mt-6"
+            :disabled="isLoading"
+            class="w-full bg-teal-600 hover:bg-teal-700 disabled:bg-gray-400 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 mt-6"
           >
-            Sign In
+            {{ isLoading ? 'Iniciando sesión...' : 'Sign In' }}
           </button>
         </form>
 
@@ -194,8 +200,10 @@ watch(password, (newPassword) => {
 })
 
 const { login } = useAuth()
+const loginError = ref('')
+const isLoading = ref(false)
 
-const handleLogin = () => {
+const handleLogin = async () => {
   // Validate email before submission
   const emailValidation = emailSchema.validate(email.value)
   if (emailValidation.error) {
@@ -210,18 +218,26 @@ const handleLogin = () => {
     return
   }
 
-  // Simulate login success and set user data
-  const userData = {
-    email: email.value,
-    name: email.value.split('@')[0] // Use email username as name
+  isLoading.value = true
+  loginError.value = ''
+
+  try {
+    const result = await login(email.value, password.value)
+
+    if (result.success) {
+      // Redirect based on user role
+      if (result.user.role === 'admin') {
+        await navigateTo('/admin')
+      } else {
+        await navigateTo('/tickets')
+      }
+    } else {
+      loginError.value = result.error
+    }
+  } catch (error) {
+    loginError.value = 'Error de conexión. Intenta nuevamente.'
+  } finally {
+    isLoading.value = false
   }
-
-  // Login the user
-  login(userData)
-
-  // Redirect to tickets page
-  navigateTo('/tickets')
-
-  console.log('Login successful:', { email: email.value, password: password.value, rememberMe: rememberMe.value })
 }
 </script>
