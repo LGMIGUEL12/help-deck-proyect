@@ -30,6 +30,7 @@ export const useTickets = () => {
       status: 'Closed',
       priority: 'Low',
       dateOpened: new Date('2025-09-24'),
+      dateClosed: new Date('2025-09-25'),
       description: 'Need help installing development tools for new project'
     },
     {
@@ -70,7 +71,29 @@ export const useTickets = () => {
       status: 'Closed',
       priority: 'Medium',
       dateOpened: new Date('2025-09-20'),
+      dateClosed: new Date('2025-09-21'),
       description: 'Marketing team emails not syncing properly with mobile device'
+    },
+    {
+      id: '022',
+      subject: 'Server maintenance request',
+      userId: 1,
+      user: 'Administrador',
+      status: 'Closed',
+      priority: 'Low',
+      dateOpened: new Date('2025-09-19'),
+      dateClosed: new Date('2025-09-20'),
+      description: 'Request scheduled maintenance for development server'
+    },
+    {
+      id: '031',
+      subject: 'Server maintenance request',
+      userId: 1,
+      user: 'Administrador',
+      status: 'Open',
+      priority: 'Low',
+      dateOpened: new Date('2025-09-19'),
+      description: 'Request scheduled maintenance for development server'
     },
     {
       id: '008',
@@ -89,6 +112,14 @@ export const useTickets = () => {
     const ticketIndex = allTickets.value.findIndex(t => t.id === ticketId)
     if (ticketIndex !== -1) {
       allTickets.value[ticketIndex].status = newStatus
+
+      // Si el ticket se cierra, agregar fecha de cierre
+      if (newStatus === 'Closed') {
+        allTickets.value[ticketIndex].dateClosed = new Date()
+      } else {
+        // Si se reabre, remover fecha de cierre
+        delete allTickets.value[ticketIndex].dateClosed
+      }
     }
   }
 
@@ -114,9 +145,9 @@ export const useTickets = () => {
     return computed(() => allTickets.value)
   }
 
-  // Función para obtener el conteo de tickets por usuario
+  // Función para obtener el conteo de tickets por usuario (excluyendo cerrados)
   const getTicketsCountByUser = (userId) => {
-    return allTickets.value.filter(ticket => ticket.userId === userId).length
+    return allTickets.value.filter(ticket => ticket.userId === userId && ticket.status !== 'Closed').length
   }
 
   // Función para actualizar un ticket completo

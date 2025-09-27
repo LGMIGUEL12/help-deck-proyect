@@ -26,11 +26,6 @@
         <div v-else class="flex items-center space-x-4">
           <span class="text-white">Hola, {{ user?.name }}</span>
           <div class="flex space-x-2">
-            <NuxtLink v-if="isAdmin()" to="/admin">
-              <UButton style="background-color: #a8d5ba; color: #3d5a52;" class="font-semibold text-sm">
-                Admin Panel
-              </UButton>
-            </NuxtLink>
             <NuxtLink to="/tickets">
               <UButton style="background-color: #a8d5ba; color: #3d5a52;" class="font-semibold text-sm">
                 Mis Tickets
