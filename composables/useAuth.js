@@ -80,6 +80,18 @@ export const useAuth = () => {
     return user.value?.role === role
   }
 
+  // Función para actualizar el usuario
+  const updateUser = (updatedData) => {
+    if (user.value) {
+      user.value = { ...user.value, ...updatedData }
+
+      // Actualizar localStorage también
+      if (process.client) {
+        localStorage.setItem('user', JSON.stringify(user.value))
+      }
+    }
+  }
+
   return {
     isLoggedIn: readonly(isLoggedIn),
     user: readonly(user),
@@ -89,6 +101,7 @@ export const useAuth = () => {
     checkAuth,
     isAdmin,
     isUser,
-    hasRole
+    hasRole,
+    updateUser
   }
 }

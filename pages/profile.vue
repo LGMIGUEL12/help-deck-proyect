@@ -88,8 +88,14 @@
       <!-- User info and logout -->
       <div class="p-2 border-t" style="border-color: #5a7a67;">
         <div v-if="sidebarVisible" class="flex items-center space-x-3 mb-3 px-2">
-          <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-            <span class="text-sm font-medium text-gray-700 uppercase">
+          <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
+            <img
+              v-if="user?.profilePhoto"
+              :src="user.profilePhoto"
+              :alt="user?.name"
+              class="w-full h-full object-cover"
+            />
+            <span v-else class="text-sm font-medium text-gray-700 uppercase">
               {{ user?.name?.charAt(0) }}
             </span>
           </div>
@@ -99,8 +105,14 @@
           </div>
         </div>
         <div v-else class="flex justify-center mb-3">
-          <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-            <span class="text-xs font-medium text-gray-700 uppercase">
+          <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
+            <img
+              v-if="user?.profilePhoto"
+              :src="user.profilePhoto"
+              :alt="user?.name"
+              class="w-full h-full object-cover"
+            />
+            <span v-else class="text-xs font-medium text-gray-700 uppercase">
               {{ user?.name?.charAt(0) }}
             </span>
           </div>
@@ -136,8 +148,8 @@
           <div class="flex flex-col items-center mb-6">
             <div class="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center mb-4 overflow-hidden">
               <img
-                v-if="user?.profileImage"
-                :src="user.profileImage"
+                v-if="user?.profilePhoto"
+                :src="user.profilePhoto"
                 :alt="user?.name"
                 class="w-full h-full object-cover"
               />
@@ -230,8 +242,8 @@
             <div class="relative">
               <div class="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
                 <img
-                  v-if="editForm.profileImage"
-                  :src="editForm.profileImage"
+                  v-if="editForm.profilePhoto"
+                  :src="editForm.profilePhoto"
                   :alt="editForm.name"
                   class="w-full h-full object-cover"
                 />
@@ -426,7 +438,7 @@ definePageMeta({
 const { user, logout, updateUser } = useAuth()
 
 // Sidebar visibility
-const sidebarVisible = ref(true)
+const sidebarVisible = ref(false)
 
 // Modal and form state
 const showEditModal = ref(false)
@@ -440,7 +452,7 @@ const editForm = ref({
   email: '',
   address: '',
   department: '',
-  profileImage: null,
+  profilePhoto: null,
   interests: []
 })
 
@@ -490,7 +502,7 @@ const initializeForm = () => {
     email: user.value?.email || '',
     address: user.value?.address || '123 Main Street, Anytown, USA',
     department: user.value?.department || '',
-    profileImage: user.value?.profileImage || null,
+    profilePhoto: user.value?.profilePhoto || null,
     interests: user.value?.interests ? [...user.value.interests] : [...defaultInterests]
   }
 }
@@ -529,7 +541,7 @@ const handleImageUpload = (event) => {
     // Create preview URL
     const reader = new FileReader()
     reader.onload = (e) => {
-      editForm.value.profileImage = e.target.result
+      editForm.value.profilePhoto = e.target.result
     }
     reader.readAsDataURL(file)
   }
@@ -572,7 +584,7 @@ const saveProfile = async () => {
       email: editForm.value.email,
       address: editForm.value.address,
       department: editForm.value.department,
-      profileImage: editForm.value.profileImage,
+      profilePhoto: editForm.value.profilePhoto,
       interests: editForm.value.interests
     }
 

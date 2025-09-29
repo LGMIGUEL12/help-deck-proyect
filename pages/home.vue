@@ -11,7 +11,7 @@
           </div>
           <div class="flex items-center space-x-6">
             <a href="/" class="text-white hover:text-gray-200 transition-colors">Home</a>
-            <a href="#" class="text-white hover:text-gray-200 transition-colors">Support</a>
+            <a href="#" @click.prevent="openContactModal" class="text-white hover:text-gray-200 transition-colors">Support</a>
             <a href="#" class="text-white hover:text-gray-200 transition-colors">Knowledge Base</a>
             <a href="#" class="text-white hover:text-gray-200 transition-colors">Community Forums</a>
           </div>
@@ -166,7 +166,12 @@
           </a>
         </div>
         <div class="fixed bottom-6 right-6">
-          <button class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: #4CAF50;">
+          <button
+            @click="openContactModal"
+            class="w-12 h-12 rounded-full flex items-center justify-center hover:scale-105 transition-transform shadow-lg"
+            style="background-color: #4CAF50;"
+            title="Contactar Soporte"
+          >
             <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
             </svg>
@@ -174,6 +179,165 @@
         </div>
       </div>
     </footer>
+
+    <!-- Modal de Contacto/Support -->
+    <div v-if="showContactModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg w-full max-w-lg mx-auto max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="flex justify-between items-center p-6 border-b">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900">Contactar Soporte</h3>
+            <p class="text-sm text-gray-500 mt-1">Envía un mensaje directo a nuestro equipo de soporte</p>
+            <div class="flex items-center mt-2 text-xs text-green-600 bg-green-50 px-2 py-1 rounded-md inline-flex">
+              <UIcon name="i-heroicons-envelope" class="w-3 h-3 mr-1" />
+              <span class="font-medium">Destinatario: ramosvasquezlusimiguel@gmail.com</span>
+            </div>
+          </div>
+          <button @click="closeContactModal" class="text-gray-400 hover:text-gray-600">
+            <UIcon name="i-heroicons-x-mark" class="w-6 h-6" />
+          </button>
+        </div>
+
+        <!-- Contenido con scroll -->
+        <div class="flex-1 overflow-y-auto scrollbar-white">
+          <!-- Información del proceso -->
+          <div class="px-6 pt-4 pb-2">
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div class="flex items-start">
+                <UIcon name="i-heroicons-information-circle" class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
+                <div class="text-sm text-blue-700">
+                  <p class="font-medium mb-1">¿Cómo funciona?</p>
+                  <p>Tu mensaje será enviado directamente a <span class="font-mono text-xs bg-blue-100 px-1 rounded">ramosvasquezlusimiguel@gmail.com</span> con toda tu información para que puedan ayudarte rápidamente.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulario -->
+          <div class="px-6 pb-6">
+            <div class="space-y-4">
+            <!-- Nombre -->
+            <div>
+              <label for="contactName" class="block text-sm font-medium text-gray-700 mb-2">
+                Nombre *
+                <span v-if="isLoggedIn" class="text-xs text-gray-500 font-normal ml-2">(tomado de tu perfil)</span>
+              </label>
+              <input
+                id="contactName"
+                v-model="contactForm.name"
+                type="text"
+                required
+                :readonly="isLoggedIn"
+                :class="[
+                  'w-full px-3 py-2 border rounded-md focus:outline-none',
+                  isLoggedIn
+                    ? 'bg-gray-100 text-gray-700 border-gray-200 cursor-not-allowed'
+                    : 'bg-white text-gray-900 border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-gray-400'
+                ]"
+                :placeholder="isLoggedIn ? '' : 'Tu nombre completo'"
+              />
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label for="contactEmail" class="block text-sm font-medium text-gray-700 mb-2">
+                Email *
+                <span v-if="isLoggedIn" class="text-xs text-gray-500 font-normal ml-2">(tomado de tu perfil)</span>
+              </label>
+              <input
+                id="contactEmail"
+                v-model="contactForm.email"
+                type="email"
+                required
+                :readonly="isLoggedIn"
+                :class="[
+                  'w-full px-3 py-2 border rounded-md focus:outline-none',
+                  isLoggedIn
+                    ? 'bg-gray-100 text-gray-700 border-gray-200 cursor-not-allowed'
+                    : 'bg-white text-gray-900 border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-gray-400'
+                ]"
+                :placeholder="isLoggedIn ? '' : 'tu@email.com'"
+              />
+            </div>
+
+            <!-- Asunto -->
+            <div>
+              <label for="contactSubject" class="block text-sm font-medium text-gray-700 mb-2">
+                Asunto *
+              </label>
+              <input
+                id="contactSubject"
+                v-model="contactForm.subject"
+                type="text"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-400"
+                placeholder="¿En qué podemos ayudarte?"
+              />
+            </div>
+
+            <!-- Mensaje -->
+            <div>
+              <label for="contactMessage" class="block text-sm font-medium text-gray-700 mb-2">
+                Mensaje *
+              </label>
+              <textarea
+                id="contactMessage"
+                v-model="contactForm.message"
+                required
+                rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-vertical bg-white text-gray-900 placeholder-gray-400"
+                placeholder="Describe tu consulta o problema en detalle..."
+              ></textarea>
+            </div>
+
+            <!-- Prioridad -->
+            <div>
+              <label for="contactPriority" class="block text-sm font-medium text-gray-700 mb-2">
+                Prioridad
+              </label>
+              <select
+                id="contactPriority"
+                v-model="contactForm.priority"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white text-gray-900"
+              >
+                <option value="Baja">Baja - Consulta general</option>
+                <option value="Media">Media - Necesito ayuda</option>
+                <option value="Alta">Alta - Problema urgente</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        </div>
+
+        <!-- Botones fijos en la parte inferior -->
+        <form @submit.prevent="sendSupportMessage">
+          <div class="flex justify-between items-center px-6 py-4 border-t bg-gray-50">
+            <div class="text-xs text-gray-500 flex items-center">
+              <UIcon name="i-heroicons-paper-airplane" class="w-3 h-3 mr-1" />
+              <span>Se enviará a: ramosvasquezlusimiguel@gmail.com</span>
+            </div>
+            <div class="flex space-x-3">
+              <button
+                type="button"
+                @click="closeContactModal"
+                class="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                :disabled="isSubmitting"
+                class="px-4 py-2 text-white rounded-md transition-colors"
+                style="background-color: #4CAF50;"
+                onmouseover="this.style.backgroundColor='#45a049'"
+                onmouseout="this.style.backgroundColor='#4CAF50'"
+              >
+                {{ isSubmitting ? 'Enviando...' : 'Enviar Mensaje' }}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <!-- Login Required Modal -->
     <LoginRequiredModal :isOpen="showLoginModal" @close="showLoginModal = false" />
@@ -183,6 +347,19 @@
 <script setup>
 const searchQuery = ref('')
 const showLoginModal = ref(false)
+
+// Modal de contacto
+const showContactModal = ref(false)
+const isSubmitting = ref(false)
+
+// Formulario de contacto
+const contactForm = ref({
+  name: '',
+  email: '',
+  subject: '',
+  message: '',
+  priority: 'Media'
+})
 
 const { isLoggedIn, user, checkAuth, logout, isAdmin } = useAuth()
 
@@ -204,4 +381,111 @@ const handleSubmitTicket = () => {
     showLoginModal.value = true
   }
 }
+
+// Funciones para el modal de contacto
+const openContactModal = () => {
+  // Si el usuario está logueado, prellenar su información
+  if (isLoggedIn.value && user.value) {
+    contactForm.value.name = user.value.name || ''
+    contactForm.value.email = user.value.email || ''
+  }
+  showContactModal.value = true
+}
+
+const closeContactModal = () => {
+  showContactModal.value = false
+  // Reset form
+  contactForm.value = {
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+    priority: 'Media'
+  }
+  isSubmitting.value = false
+}
+
+const sendSupportMessage = async () => {
+  try {
+    isSubmitting.value = true
+
+    // Preparar el contenido del email
+    const emailContent = `
+Nuevo mensaje de soporte desde Help Desk
+
+==================================
+INFORMACIÓN DEL REMITENTE
+==================================
+Nombre: ${contactForm.value.name}
+Email: ${contactForm.value.email}
+Prioridad: ${contactForm.value.priority}
+
+==================================
+MENSAJE
+==================================
+Asunto: ${contactForm.value.subject}
+
+Mensaje:
+${contactForm.value.message}
+
+==================================
+INFORMACIÓN ADICIONAL
+==================================
+Fecha: ${new Date().toLocaleDateString('es-ES', {
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit'
+})}
+Estado del usuario: ${isLoggedIn.value ? 'Logueado' : 'No logueado'}
+${isLoggedIn.value && user.value ? `Departamento: ${user.value.department || 'N/A'}` : ''}
+    `.trim()
+
+    // Crear enlace de mailto con el contenido formateado
+    const mailtoLink = `mailto:ramosvasquezlusimiguel@gmail.com?subject=${encodeURIComponent(`[Help Desk] ${contactForm.value.subject}`)}&body=${encodeURIComponent(emailContent)}`
+
+    // Abrir cliente de correo
+    window.location.href = mailtoLink
+
+    // Mostrar mensaje de éxito
+    setTimeout(() => {
+      alert('Se ha abierto tu cliente de correo con el mensaje preparado. Si no se abrió automáticamente, copia el contenido y envíalo manualmente a ramosvasquezlusimiguel@gmail.com')
+      closeContactModal()
+    }, 1000)
+
+  } catch (error) {
+    console.error('Error al preparar el mensaje:', error)
+    alert('Hubo un error al preparar el mensaje. Por favor, intenta nuevamente o envía un correo directamente a ramosvasquezlusimiguel@gmail.com')
+  } finally {
+    isSubmitting.value = false
+  }
+}
 </script>
+
+<style scoped>
+.scrollbar-white {
+  scrollbar-width: thin;
+  scrollbar-color: white #f1f1f1;
+}
+
+.scrollbar-white::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-white::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.scrollbar-white::-webkit-scrollbar-thumb {
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.scrollbar-white::-webkit-scrollbar-thumb:hover {
+  background: #f9f9f9;
+}
+</style>

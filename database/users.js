@@ -11,6 +11,7 @@ export const users = [
     name: 'Administrador',
     role: ROLES.ADMIN,
     department: 'IT Administration',
+    profilePhoto: 'https://img.freepik.com/foto-gratis/joven-hombre-barbudo-camisa-rayas_273609-5677.jpg?semt=ais_hybrid&w=740&q=80',
     createdAt: new Date().toISOString()
   },
   {
@@ -20,6 +21,7 @@ export const users = [
     name: 'Usuario Normal',
     role: ROLES.USER,
     department: 'General',
+    profilePhoto: 'https://img.freepik.com/foto-gratis/estilo-vida-emociones-gente-concepto-casual-confiado-agradable-sonriente-mujer-asiatica-brazos-cruzados-pecho-seguro-listo-ayudar-escuchando-companeros-trabajo-participando-conversacion_1258-59335.jpg?semt=ais_hybrid&w=740&q=80',
     createdAt: new Date().toISOString()
   },
   {
@@ -29,6 +31,7 @@ export const users = [
     name: 'María García',
     role: ROLES.USER,
     department: 'Marketing',
+    profilePhoto: 'https://www.mundopsicologos.com/site/article/62918/52988/la-depresion-cambia-a-las-personas-10-efectos-de-este-trastorno-en-el-comportamiento-y-el-cerebro-0_ai1.jpg',
     createdAt: new Date().toISOString()
   },
   {
@@ -38,6 +41,7 @@ export const users = [
     name: 'Carlos López',
     role: ROLES.USER,
     department: 'Desarrollo',
+    profilePhoto: 'https://media.istockphoto.com/id/1171169099/es/foto/hombre-con-brazos-cruzados-aislados-sobre-fondo-gris.jpg?s=612x612&w=0&k=20&c=8qDLKdLMm2i8DHXY6crX6a5omVh2IxqrOxJV2QGzgFg=',
     createdAt: new Date().toISOString()
   }
 ]

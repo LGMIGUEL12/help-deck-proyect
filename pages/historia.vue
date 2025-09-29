@@ -88,8 +88,14 @@
       <!-- User info and logout -->
       <div class="p-2 border-t" style="border-color: #5a7a67;">
         <div v-if="sidebarVisible" class="flex items-center space-x-3 mb-3 px-2">
-          <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-            <span class="text-sm font-medium text-gray-700 uppercase">
+          <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
+            <img
+              v-if="user?.profilePhoto"
+              :src="user.profilePhoto"
+              :alt="user?.name"
+              class="w-full h-full object-cover"
+            />
+            <span v-else class="text-sm font-medium text-gray-700 uppercase">
               {{ user?.name?.charAt(0) }}
             </span>
           </div>
@@ -99,8 +105,14 @@
           </div>
         </div>
         <div v-else class="flex justify-center mb-3">
-          <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-            <span class="text-xs font-medium text-gray-700 uppercase">
+          <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
+            <img
+              v-if="user?.profilePhoto"
+              :src="user.profilePhoto"
+              :alt="user?.name"
+              class="w-full h-full object-cover"
+            />
+            <span v-else class="text-xs font-medium text-gray-700 uppercase">
               {{ user?.name?.charAt(0) }}
             </span>
           </div>
@@ -257,7 +269,7 @@
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="ticket in filteredTickets" :key="ticket.id" class="hover:bg-gray-50">
+                <tr v-for="ticket in filteredTickets" :key="ticket.id" class="hover:bg-gray-50 cursor-pointer" @click="viewTicket(ticket)">
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     #{{ ticket.id }}
                   </td>
@@ -268,8 +280,14 @@
                   <td v-if="user?.role === 'admin'" class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
                       <div class="flex-shrink-0 h-8 w-8">
-                        <div class="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
-                          <span class="text-xs font-medium text-gray-700 uppercase">
+                        <div class="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
+                          <img
+                            v-if="getUserById(ticket.userId)?.profilePhoto"
+                            :src="getUserById(ticket.userId).profilePhoto"
+                            :alt="ticket.user"
+                            class="w-full h-full object-cover"
+                          />
+                          <span v-else class="text-xs font-medium text-gray-700 uppercase">
                             {{ ticket.user?.charAt(0) }}
                           </span>
                         </div>
@@ -311,10 +329,126 @@
         </div>
       </main>
     </div>
+
+    <!-- Modal para ver detalles del ticket (solo lectura) -->
+    <div v-if="showViewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg w-full max-w-2xl mx-auto max-h-[90vh] overflow-hidden">
+        <div class="flex justify-between items-center p-6 border-b">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900">Detalles del Ticket #{{ selectedTicket?.id }}</h3>
+            <p class="text-sm text-gray-500 mt-1">Vista de solo lectura - Ticket cerrado</p>
+          </div>
+          <button @click="closeViewModal" class="text-gray-400 hover:text-gray-600">
+            <UIcon name="i-heroicons-x-mark" class="w-6 h-6" />
+          </button>
+        </div>
+
+        <div class="overflow-y-auto max-h-[70vh] p-6">
+          <!-- Información básica del ticket -->
+          <div class="space-y-6">
+            <!-- Subject -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Asunto</label>
+              <div class="bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-gray-900">
+                {{ selectedTicket?.subject }}
+              </div>
+            </div>
+
+            <!-- Descripción -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+              <div class="bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-gray-900 min-h-[100px] whitespace-pre-wrap">
+                {{ selectedTicket?.description }}
+              </div>
+            </div>
+
+            <!-- Grid con información adicional -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Usuario -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Creado por</label>
+                <div class="bg-gray-50 border border-gray-200 rounded-md px-3 py-2 flex items-center">
+                  <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden mr-3">
+                    <img
+                      v-if="getUserById(selectedTicket?.userId)?.profilePhoto"
+                      :src="getUserById(selectedTicket?.userId).profilePhoto"
+                      :alt="selectedTicket?.user"
+                      class="w-full h-full object-cover"
+                    />
+                    <span v-else class="text-xs font-medium text-gray-700 uppercase">
+                      {{ selectedTicket?.user?.charAt(0) }}
+                    </span>
+                  </div>
+                  <div>
+                    <div class="text-sm font-medium text-gray-900">{{ selectedTicket?.user }}</div>
+                    <div class="text-xs text-gray-500">{{ getUserById(selectedTicket?.userId)?.department }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Prioridad -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Prioridad</label>
+                <div class="bg-gray-50 border border-gray-200 rounded-md px-3 py-2">
+                  <span :class="getPriorityClass(selectedTicket?.priority)" class="text-sm font-medium">
+                    {{ selectedTicket?.priority }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Fecha de apertura -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de apertura</label>
+                <div class="bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-gray-900">
+                  {{ formatDate(selectedTicket?.dateOpened) }}
+                </div>
+              </div>
+
+              <!-- Fecha de cierre -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de cierre</label>
+                <div class="bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-gray-900">
+                  {{ formatDate(selectedTicket?.dateClosed) }}
+                </div>
+              </div>
+
+              <!-- Status -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                <div class="bg-gray-50 border border-gray-200 rounded-md px-3 py-2">
+                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                    {{ selectedTicket?.status }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Tiempo de resolución -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tiempo de resolución</label>
+                <div class="bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-gray-900">
+                  {{ getResolutionTime(selectedTicket) }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end items-center p-6 border-t bg-gray-50">
+          <button
+            @click="closeViewModal"
+            class="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
+import { users } from '~/database/users.js'
+
 definePageMeta({
   middleware: 'auth'
 })
@@ -323,11 +457,15 @@ const { user, logout } = useAuth()
 const { allTickets } = useTickets()
 
 // Sidebar visibility
-const sidebarVisible = ref(true)
+const sidebarVisible = ref(false)
 
 // Filter states
 const selectedPeriod = ref('all')
 const selectedUser = ref('all')
+
+// Modal states
+const showViewModal = ref(false)
+const selectedTicket = ref(null)
 
 // Computed properties for closed tickets
 const closedTickets = computed(() => {
@@ -464,6 +602,22 @@ const getResolutionTime = (ticket) => {
   if (remainingDays === 0) return `${weeks} semanas`
 
   return `${weeks}s ${remainingDays}d`
+}
+
+// Función para obtener el usuario completo por ID
+const getUserById = (userId) => {
+  return users.find(u => u.id === userId)
+}
+
+// Funciones para manejar el modal de vista
+const viewTicket = (ticket) => {
+  selectedTicket.value = ticket
+  showViewModal.value = true
+}
+
+const closeViewModal = () => {
+  showViewModal.value = false
+  selectedTicket.value = null
 }
 </script>
 

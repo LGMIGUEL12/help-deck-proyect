@@ -88,8 +88,14 @@
       <!-- User info and logout -->
       <div class="p-2 border-t" style="border-color: #5a7a67;">
         <div v-if="sidebarVisible" class="flex items-center space-x-3 mb-3 px-2">
-          <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-            <span class="text-sm font-medium text-gray-700 uppercase">
+          <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
+            <img
+              v-if="user?.profilePhoto"
+              :src="user.profilePhoto"
+              :alt="user?.name"
+              class="w-full h-full object-cover"
+            />
+            <span v-else class="text-sm font-medium text-gray-700 uppercase">
               {{ user?.name?.charAt(0) }}
             </span>
           </div>
@@ -99,8 +105,14 @@
           </div>
         </div>
         <div v-else class="flex justify-center mb-3">
-          <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-            <span class="text-xs font-medium text-gray-700 uppercase">
+          <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
+            <img
+              v-if="user?.profilePhoto"
+              :src="user.profilePhoto"
+              :alt="user?.name"
+              class="w-full h-full object-cover"
+            />
+            <span v-else class="text-xs font-medium text-gray-700 uppercase">
               {{ user?.name?.charAt(0) }}
             </span>
           </div>
@@ -187,7 +199,17 @@
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
-                      <UIcon name="i-heroicons-user-circle" class="w-6 h-6 text-gray-400 mr-3" />
+                      <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden mr-3">
+                        <img
+                          v-if="getUserById(ticket.userId)?.profilePhoto"
+                          :src="getUserById(ticket.userId).profilePhoto"
+                          :alt="ticket.user"
+                          class="w-full h-full object-cover"
+                        />
+                        <span v-else class="text-xs font-medium text-gray-700 uppercase">
+                          {{ ticket.user?.charAt(0) }}
+                        </span>
+                      </div>
                       <div>
                         <div class="text-sm font-medium text-gray-900">{{ ticket.subject }}</div>
                         <div class="text-sm text-gray-500">{{ ticket.user }}</div>
@@ -381,6 +403,8 @@
 </template>
 
 <script setup>
+import { users } from '~/database/users.js'
+
 definePageMeta({
   middleware: 'auth'
 })
@@ -392,7 +416,7 @@ const { allTickets, addTicket, updateTicket: updateTicketGlobal } = useTickets()
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const selectedTicket = ref(null)
-const sidebarVisible = ref(true)
+const sidebarVisible = ref(false)
 const newTicket = ref({
   subject: '',
   priority: 'Medium',
@@ -496,6 +520,11 @@ const updateTicket = () => {
 const handleLogout = () => {
   logout()
   navigateTo('/login')
+}
+
+// Función para obtener el usuario completo por ID
+const getUserById = (userId) => {
+  return users.find(u => u.id === userId)
 }
 </script>
 

@@ -88,8 +88,14 @@
       <!-- User info and logout -->
       <div class="p-2 border-t" style="border-color: #5a7a67;">
         <div v-if="sidebarVisible" class="flex items-center space-x-3 mb-3 px-2">
-          <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-            <span class="text-sm font-medium text-gray-700 uppercase">
+          <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
+            <img
+              v-if="user?.profilePhoto"
+              :src="user.profilePhoto"
+              :alt="user?.name"
+              class="w-full h-full object-cover"
+            />
+            <span v-else class="text-sm font-medium text-gray-700 uppercase">
               {{ user?.name?.charAt(0) }}
             </span>
           </div>
@@ -99,8 +105,14 @@
           </div>
         </div>
         <div v-else class="flex justify-center mb-3">
-          <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-            <span class="text-xs font-medium text-gray-700 uppercase">
+          <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
+            <img
+              v-if="user?.profilePhoto"
+              :src="user.profilePhoto"
+              :alt="user?.name"
+              class="w-full h-full object-cover"
+            />
+            <span v-else class="text-xs font-medium text-gray-700 uppercase">
               {{ user?.name?.charAt(0) }}
             </span>
           </div>
@@ -207,8 +219,14 @@
             >
               <div class="flex items-center">
                 <div class="flex-shrink-0 h-10 w-10">
-                  <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                    <span class="text-sm font-medium text-gray-700 uppercase">
+                  <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
+                    <img
+                      v-if="user.profilePhoto"
+                      :src="user.profilePhoto"
+                      :alt="user.name"
+                      class="w-full h-full object-cover"
+                    />
+                    <span v-else class="text-sm font-medium text-gray-700 uppercase">
                       {{ user.name.charAt(0) }}
                     </span>
                   </div>
@@ -333,6 +351,8 @@
 </template>
 
 <script setup>
+import { users } from '~/database/users.js'
+
 definePageMeta({
   middleware: 'admin'
 })
@@ -341,7 +361,7 @@ const { user, logout } = useAuth()
 const { allTickets, updateTicketStatus: updateTicketStatusGlobal, getTicketsCountByUser } = useTickets()
 
 // Sidebar visibility
-const sidebarVisible = ref(true)
+const sidebarVisible = ref(false)
 
 // Estado para el modal de tickets
 const showUserTicketsModal = ref(false)
@@ -350,40 +370,7 @@ const selectedUserTickets = ref([])
 const ticketChanges = ref({})
 
 // Datos de usuarios actualizados
-const usersList = ref([
-  {
-    id: 1,
-    email: 'admin@disenos.com',
-    name: 'Administrador',
-    role: 'admin',
-    department: 'IT Administration',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 2,
-    email: 'usuario@disenos.com',
-    name: 'Usuario Normal',
-    role: 'user',
-    department: 'General',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 3,
-    email: 'maria.garcia@disenos.com',
-    name: 'María García',
-    role: 'user',
-    department: 'Marketing',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 4,
-    email: 'carlos.lopez@disenos.com',
-    name: 'Carlos López',
-    role: 'user',
-    department: 'Desarrollo',
-    createdAt: new Date().toISOString()
-  }
-])
+const usersList = ref(users)
 const totalUsers = computed(() => usersList.value.length)
 const adminUsers = computed(() => usersList.value.filter(u => u.role === 'admin').length)
 const regularUsers = computed(() => usersList.value.filter(u => u.role === 'user').length)
