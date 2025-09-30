@@ -43,6 +43,35 @@ export const useAuth = () => {
     }
   }
 
+  // Función para login con Google
+  const loginWithGoogle = async (credential) => {
+    try {
+      const data = await $fetch('/api/auth/google', {
+        method: 'POST',
+        body: { credential }
+      })
+
+      if (data.success) {
+        isLoggedIn.value = true
+        user.value = data.user
+
+        // Guardar en localStorage para persistencia
+        if (process.client) {
+          localStorage.setItem('isLoggedIn', 'true')
+          localStorage.setItem('user', JSON.stringify(data.user))
+        }
+
+        return { success: true, user: data.user }
+      }
+    } catch (error) {
+      console.error('Error de login con Google:', error)
+      return {
+        success: false,
+        error: error.data?.message || error.message || 'Error de conexión'
+      }
+    }
+  }
+
   // Función para cerrar sesión
   const logout = () => {
     isLoggedIn.value = false
@@ -118,6 +147,7 @@ export const useAuth = () => {
     user: readonly(user),
     login,
     loginSimple,
+    loginWithGoogle,
     logout,
     checkAuth,
     isAdmin,

@@ -7,13 +7,13 @@ export default defineEventHandler(async (event) => {
     await connectDB()
 
     const body = await readBody(event)
-    const { email, password, name, phone, birthDate } = body
+    const { email, name, role, department, password } = body
 
     // Validaciones básicas
-    if (!email || !password || !name) {
+    if (!email || !name) {
       throw createError({
         statusCode: 400,
-        message: 'Email, contraseña y nombre son requeridos'
+        message: 'Email y nombre son requeridos'
       })
     }
 
@@ -30,9 +30,10 @@ export default defineEventHandler(async (event) => {
     // Crear nuevo usuario
     const newUser = await User.create({
       email: email.toLowerCase(),
-      password,
+      password: password || 'Password123!', // Password por defecto si no se proporciona
       name,
-      phone: phone || ''
+      role: role || 'user',
+      department: department || ''
     })
 
     // Retornar usuario sin password
@@ -57,7 +58,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Error de base de datos u otro
-    console.error('Error en signup:', error)
+    console.error('Error al crear usuario:', error)
     throw createError({
       statusCode: 500,
       message: 'Error en el servidor'
