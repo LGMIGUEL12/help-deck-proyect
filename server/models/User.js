@@ -39,6 +39,31 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'https://img.freepik.com/foto-gratis/joven-hombre-barbudo-camisa-rayas_273609-5677.jpg'
   },
+  jobTitle: {
+    type: String,
+    trim: true,
+    default: 'Software Engineer'
+  },
+  phone: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  address: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  interests: {
+    type: [
+      {
+        id: Number,
+        name: String,
+        icon: String
+      }
+    ],
+    default: []
+  },
   createdAt: {
     type: Date,
     default: Date.now
