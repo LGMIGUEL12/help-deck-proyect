@@ -35,9 +35,14 @@
                 v-model="firstName"
                 type="text"
                 placeholder="Nombre"
-                class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white text-gray-900"
+                class="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:border-transparent bg-white text-gray-900"
+                :class="{
+                  'border-gray-200 focus:ring-teal-500': !firstNameError,
+                  'border-red-500 focus:ring-red-500': firstNameError
+                }"
                 required
               />
+              <p v-if="firstNameError" class="text-red-500 text-xs mt-1">{{ firstNameError }}</p>
             </div>
             <!-- Last Name -->
             <div>
@@ -45,9 +50,14 @@
                 v-model="lastName"
                 type="text"
                 placeholder="Apellido"
-                class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white text-gray-900"
+                class="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:border-transparent bg-white text-gray-900"
+                :class="{
+                  'border-gray-200 focus:ring-teal-500': !lastNameError,
+                  'border-red-500 focus:ring-red-500': lastNameError
+                }"
                 required
               />
+              <p v-if="lastNameError" class="text-red-500 text-xs mt-1">{{ lastNameError }}</p>
             </div>
           </div>
 
@@ -59,10 +69,15 @@
               type="date"
               max="2006-12-31"
               min="1930-01-01"
-              class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white text-gray-900 cursor-pointer"
+              class="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:border-transparent bg-white text-gray-900 cursor-pointer"
+              :class="{
+                'border-gray-200 focus:ring-teal-500': !birthDateError,
+                'border-red-500 focus:ring-red-500': birthDateError
+              }"
               style="color-scheme: light;"
               required
             />
+            <p v-if="birthDateError" class="text-red-500 text-xs mt-1">{{ birthDateError }}</p>
           </div>
 
           <!-- Email Field -->
@@ -87,9 +102,14 @@
               v-model="phoneNumber"
               type="tel"
               placeholder="Número de teléfono"
-              class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent bg-white text-gray-900"
+              class="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:border-transparent bg-white text-gray-900"
+              :class="{
+                'border-gray-200 focus:ring-teal-500': !phoneNumberError,
+                'border-red-500 focus:ring-red-500': phoneNumberError
+              }"
               required
             />
+            <p v-if="phoneNumberError" class="text-red-500 text-xs mt-1">{{ phoneNumberError }}</p>
           </div>
 
           <!-- Password Field -->
@@ -161,10 +181,11 @@
           <!-- Sign Up Button -->
           <button
             type="submit"
-            :disabled="!isFormValid"
+            :disabled="!isFormValid || isLoading"
             class="w-full bg-teal-600 hover:bg-teal-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 mt-6"
           >
-            Sign Up
+            <span v-if="isLoading">Creando cuenta...</span>
+            <span v-else>Sign Up</span>
           </button>
         </form>
 
@@ -227,57 +248,138 @@ const email = ref('')
 const phoneNumber = ref('')
 const password = ref('')
 const confirmPassword = ref('')
+
+// Estados de error
+const firstNameError = ref('')
+const lastNameError = ref('')
+const birthDateError = ref('')
 const emailError = ref('')
+const phoneNumberError = ref('')
 const passwordError = ref('')
 const confirmPasswordError = ref('')
+
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 
-// Email validation schema
+// Validation schemas
+const firstNameSchema = Joi.string()
+  .required()
+  .min(2)
+  .messages({
+    'string.empty': 'El nombre es requerido',
+    'string.min': 'El nombre debe tener al menos 2 caracteres'
+  })
+
+const lastNameSchema = Joi.string()
+  .required()
+  .min(2)
+  .messages({
+    'string.empty': 'El apellido es requerido',
+    'string.min': 'El apellido debe tener al menos 2 caracteres'
+  })
+
+const birthDateSchema = Joi.date()
+  .required()
+  .max('2006-12-31')
+  .min('1930-01-01')
+  .messages({
+    'date.base': 'La fecha de nacimiento es requerida',
+    'any.required': 'La fecha de nacimiento es requerida',
+    'date.max': 'Debes tener al menos 18 años',
+    'date.min': 'La fecha de nacimiento no es válida'
+  })
+
 const emailSchema = Joi.string()
   .email({ tlds: { allow: false } })
   .required()
+  .messages({
+    'string.empty': 'El correo electrónico es requerido',
+    'string.email': 'Por favor ingresa un correo electrónico válido'
+  })
 
-// Password validation schema
+const phoneNumberSchema = Joi.string()
+  .required()
+  .min(10)
+  .pattern(/^[0-9]+$/)
+  .messages({
+    'string.empty': 'El número de teléfono es requerido',
+    'string.min': 'El número de teléfono debe tener al menos 10 dígitos',
+    'string.pattern.base': 'El número de teléfono solo puede contener números'
+  })
+
 const passwordSchema = Joi.string()
   .min(8)
   .pattern(/^(?=.*[A-Z])(?=.*\d)/)
   .required()
   .messages({
+    'string.empty': 'La contraseña es requerida',
     'string.min': 'La contraseña debe tener al menos 8 caracteres',
-    'string.pattern.base': 'La contraseña debe tener al menos 1 letra mayúscula y 1 número',
-    'string.empty': 'La contraseña es requerida'
+    'string.pattern.base': 'La contraseña debe tener al menos 1 letra mayúscula y 1 número'
   })
 
-// Watch email input for validation
-watch(email, (newEmail) => {
-  if (newEmail) {
-    const { error } = emailSchema.validate(newEmail)
-    emailError.value = error ? 'Por favor ingresa un correo electrónico válido' : ''
+// Watchers para validación en tiempo real
+watch(firstName, (value) => {
+  if (value) {
+    const { error } = firstNameSchema.validate(value)
+    firstNameError.value = error ? error.message : ''
+  } else {
+    firstNameError.value = ''
+  }
+})
+
+watch(lastName, (value) => {
+  if (value) {
+    const { error } = lastNameSchema.validate(value)
+    lastNameError.value = error ? error.message : ''
+  } else {
+    lastNameError.value = ''
+  }
+})
+
+watch(birthDate, (value) => {
+  if (value) {
+    const { error } = birthDateSchema.validate(value)
+    birthDateError.value = error ? error.message : ''
+  } else {
+    birthDateError.value = ''
+  }
+})
+
+watch(email, (value) => {
+  if (value) {
+    const { error } = emailSchema.validate(value)
+    emailError.value = error ? error.message : ''
   } else {
     emailError.value = ''
   }
 })
 
-// Watch password input for validation
-watch(password, (newPassword) => {
-  if (newPassword) {
-    const { error } = passwordSchema.validate(newPassword)
+watch(phoneNumber, (value) => {
+  if (value) {
+    const { error } = phoneNumberSchema.validate(value)
+    phoneNumberError.value = error ? error.message : ''
+  } else {
+    phoneNumberError.value = ''
+  }
+})
+
+watch(password, (value) => {
+  if (value) {
+    const { error } = passwordSchema.validate(value)
     passwordError.value = error ? error.message : ''
   } else {
     passwordError.value = ''
   }
 
-  // Also validate confirm password when password changes
+  // Validar confirmación de contraseña cuando cambia la contraseña
   if (confirmPassword.value) {
-    confirmPasswordError.value = newPassword !== confirmPassword.value ? 'Las contraseñas no coinciden' : ''
+    confirmPasswordError.value = value !== confirmPassword.value ? 'Las contraseñas no coinciden' : ''
   }
 })
 
-// Watch confirm password for validation
-watch(confirmPassword, (newConfirmPassword) => {
-  if (newConfirmPassword) {
-    confirmPasswordError.value = password.value !== newConfirmPassword ? 'Las contraseñas no coinciden' : ''
+watch(confirmPassword, (value) => {
+  if (value) {
+    confirmPasswordError.value = password.value !== value ? 'Las contraseñas no coinciden' : ''
   } else {
     confirmPasswordError.value = ''
   }
@@ -291,57 +393,110 @@ const isFormValid = computed(() => {
          phoneNumber.value &&
          password.value &&
          confirmPassword.value &&
-         password.value === confirmPassword.value &&
+         !firstNameError.value &&
+         !lastNameError.value &&
+         !birthDateError.value &&
          !emailError.value &&
+         !phoneNumberError.value &&
          !passwordError.value &&
          !confirmPasswordError.value
 })
 
-const { login } = useAuth()
+const { loginSimple } = useAuth()
+const isLoading = ref(false)
 
-const handleSignUp = () => {
-  // Validate email before submission
-  const emailValidation = emailSchema.validate(email.value)
-  if (emailValidation.error) {
-    emailError.value = 'Por favor ingresa un correo electrónico válido'
-    return
+const handleSignUp = async () => {
+  // Validar todos los campos antes de enviar
+  let hasErrors = false
+
+  // Validar nombre
+  const firstNameValidation = firstNameSchema.validate(firstName.value)
+  if (firstNameValidation.error) {
+    firstNameError.value = firstNameValidation.error.message
+    hasErrors = true
   }
 
-  // Validate password before submission
+  // Validar apellido
+  const lastNameValidation = lastNameSchema.validate(lastName.value)
+  if (lastNameValidation.error) {
+    lastNameError.value = lastNameValidation.error.message
+    hasErrors = true
+  }
+
+  // Validar fecha de nacimiento
+  const birthDateValidation = birthDateSchema.validate(birthDate.value)
+  if (birthDateValidation.error) {
+    birthDateError.value = birthDateValidation.error.message
+    hasErrors = true
+  }
+
+  // Validar email
+  const emailValidation = emailSchema.validate(email.value)
+  if (emailValidation.error) {
+    emailError.value = emailValidation.error.message
+    hasErrors = true
+  }
+
+  // Validar teléfono
+  const phoneValidation = phoneNumberSchema.validate(phoneNumber.value)
+  if (phoneValidation.error) {
+    phoneNumberError.value = phoneValidation.error.message
+    hasErrors = true
+  }
+
+  // Validar contraseña
   const passwordValidation = passwordSchema.validate(password.value)
   if (passwordValidation.error) {
     passwordError.value = passwordValidation.error.message
-    return
+    hasErrors = true
   }
 
+  // Validar confirmación de contraseña
   if (password.value !== confirmPassword.value) {
     confirmPasswordError.value = 'Las contraseñas no coinciden'
+    hasErrors = true
+  }
+
+  // Si hay errores, no continuar
+  if (hasErrors) {
     return
   }
 
-  // Simulate signup success and set user data
-  const userData = {
-    email: email.value,
-    name: `${firstName.value} ${lastName.value}`,
-    firstName: firstName.value,
-    lastName: lastName.value,
-    birthDate: birthDate.value,
-    phoneNumber: phoneNumber.value
+  try {
+    isLoading.value = true
+
+    // Crear usuario en la base de datos
+    const response = await $fetch('/api/auth/signup', {
+      method: 'POST',
+      body: {
+        email: email.value,
+        password: password.value,
+        name: `${firstName.value} ${lastName.value}`,
+        phone: phoneNumber.value,
+        birthDate: birthDate.value
+      }
+    })
+
+    if (response.success) {
+      // Login automático después del registro
+      loginSimple(response.user)
+
+      // Redirigir a tickets
+      navigateTo('/tickets')
+    }
+  } catch (error) {
+    console.error('Error en signup:', error)
+
+    // Manejar errores específicos
+    if (error.statusCode === 409) {
+      emailError.value = 'Este correo electrónico ya está registrado'
+    } else if (error.data?.message) {
+      alert(error.data.message)
+    } else {
+      alert('Error al crear la cuenta. Por favor intenta de nuevo.')
+    }
+  } finally {
+    isLoading.value = false
   }
-
-  // Login the user automatically after signup
-  login(userData)
-
-  // Redirect to tickets page
-  navigateTo('/tickets')
-
-  console.log('Signup successful:', {
-    firstName: firstName.value,
-    lastName: lastName.value,
-    birthDate: birthDate.value,
-    email: email.value,
-    phoneNumber: phoneNumber.value,
-    password: password.value
-  })
 }
 </script>
