@@ -571,13 +571,11 @@ const removeInterest = (index) => {
   editForm.value.interests.splice(index, 1)
 }
 
+const toast = useToast()
+
 const saveProfile = async () => {
   try {
-    // Here you would typically send the data to your backend
-    // For now, we'll update the user object locally
-
     const updatedUserData = {
-      ...user.value,
       name: editForm.value.name,
       jobTitle: editForm.value.jobTitle,
       phone: editForm.value.phone,
@@ -588,19 +586,47 @@ const saveProfile = async () => {
       interests: editForm.value.interests
     }
 
-    // Update user data (you might want to call an API here)
-    if (updateUser) {
-      updateUser(updatedUserData)
+    // Llamar al API para actualizar el perfil
+    const result = await updateUser(updatedUserData)
+
+    if (result.success) {
+      showEditModal.value = false
+      toast.add({
+        title: 'Perfil actualizado',
+        description: 'Los cambios se han guardado exitosamente',
+        icon: 'i-heroicons-check-circle',
+        timeout: 3000,
+        ui: {
+          background: 'bg-[#3a5a47]',
+          border: 'border-2 border-[#7db88a]',
+          ring: 'ring-0',
+          rounded: 'rounded-lg',
+          shadow: 'shadow-xl',
+          icon: {
+            base: 'flex-shrink-0',
+            color: 'text-[#7db88a]'
+          },
+          title: 'text-base font-semibold text-white',
+          description: 'mt-1 text-sm leading-4 text-gray-200'
+        }
+      })
+    } else {
+      toast.add({
+        title: 'Error',
+        description: result.error || 'Error al guardar los cambios. Por favor intenta de nuevo.',
+        icon: 'i-heroicons-exclamation-circle',
+        color: 'red'
+      })
     }
-
-    showEditModal.value = false
-
-    // Show success message
-    console.log('Perfil actualizado exitosamente')
 
   } catch (error) {
     console.error('Error al actualizar el perfil:', error)
-    alert('Error al guardar los cambios. Por favor intenta de nuevo.')
+    toast.add({
+      title: 'Error',
+      description: 'Error al guardar los cambios. Por favor intenta de nuevo.',
+      icon: 'i-heroicons-exclamation-circle',
+      color: 'red'
+    })
   }
 }
 

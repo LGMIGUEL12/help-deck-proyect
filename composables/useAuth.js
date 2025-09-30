@@ -81,13 +81,34 @@ export const useAuth = () => {
   }
 
   // Función para actualizar el usuario
-  const updateUser = (updatedData) => {
-    if (user.value) {
-      user.value = { ...user.value, ...updatedData }
+  const updateUser = async (updatedData) => {
+    if (!user.value) return { success: false, error: 'Usuario no autenticado' }
 
-      // Actualizar localStorage también
-      if (process.client) {
-        localStorage.setItem('user', JSON.stringify(user.value))
+    try {
+      const data = await $fetch('/api/users/profile', {
+        method: 'PATCH',
+        body: {
+          userId: user.value._id,
+          ...updatedData
+        }
+      })
+
+      if (data.success) {
+        // Actualizar estado local
+        user.value = data.user
+
+        // Actualizar localStorage
+        if (process.client) {
+          localStorage.setItem('user', JSON.stringify(data.user))
+        }
+
+        return { success: true, user: data.user }
+      }
+    } catch (error) {
+      console.error('Error al actualizar usuario:', error)
+      return {
+        success: false,
+        error: error.data?.message || error.message || 'Error al actualizar el perfil'
       }
     }
   }
