@@ -17,8 +17,20 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Password es requerido'],
+    required: function() {
+      return this.authProvider === 'local'
+    },
     minlength: [6, 'Password debe tener al menos 6 caracteres']
+  },
+  googleId: {
+    type: String,
+    sparse: true,
+    unique: true
+  },
+  authProvider: {
+    type: String,
+    enum: ['local', 'google'],
+    default: 'local'
   },
   name: {
     type: String,
@@ -33,16 +45,16 @@ const userSchema = new mongoose.Schema({
   department: {
     type: String,
     trim: true,
-    default: 'General'
+    default: ''
   },
   profilePhoto: {
     type: String,
-    default: 'https://img.freepik.com/foto-gratis/joven-hombre-barbudo-camisa-rayas_273609-5677.jpg'
+    default: 'https://marketplace.canva.com/A5alg/MAESXCA5alg/1/tl/canva-user-icon-MAESXCA5alg.png'
   },
   jobTitle: {
     type: String,
     trim: true,
-    default: 'Software Engineer'
+    default: ''
   },
   phone: {
     type: String,

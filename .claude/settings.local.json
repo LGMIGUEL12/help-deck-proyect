@@ -11,7 +11,8 @@
       "Bash(net start:*)",
       "Bash(sc query:*)",
       "Bash(findstr:*)",
-      "Bash(mongosh:*)"
+      "Bash(mongosh:*)",
+      "Bash(netstat:*)"
     ],
     "deny": [],
     "ask": []

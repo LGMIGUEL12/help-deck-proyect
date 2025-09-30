@@ -193,7 +193,7 @@
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="userItem in usersList" :key="userItem.id" class="hover:bg-gray-50">
+                <tr v-for="userItem in usersList" :key="userItem._id" class="hover:bg-gray-50">
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
                       <div class="flex-shrink-0 h-10 w-10">
@@ -211,7 +211,7 @@
                       </div>
                       <div class="ml-4">
                         <div class="text-sm font-medium text-gray-900">{{ userItem.name }}</div>
-                        <div class="text-sm text-gray-500">ID: {{ userItem.id }}</div>
+                        <div class="text-sm text-gray-500">{{ userItem.email }}</div>
                       </div>
                     </div>
                   </td>
@@ -244,7 +244,7 @@
                         <UIcon name="i-heroicons-pencil" class="w-4 h-4" />
                       </button>
                       <button
-                        v-if="userItem.id !== user?.id"
+                        v-if="userItem._id !== user?._id"
                         @click="confirmDeleteUser(userItem)"
                         class="bg-red-100 hover:bg-red-200 text-red-700 hover:text-red-900 px-2 py-1 rounded transition-colors"
                         title="Eliminar usuario"
@@ -416,6 +416,67 @@
       </div>
     </div>
 
+    <!-- Success Modal -->
+    <div v-if="showSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
+        <!-- Modal Header -->
+        <div class="flex items-center p-6 pb-4">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+              <UIcon name="i-heroicons-check-circle" class="w-8 h-8 text-green-600" />
+            </div>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-lg font-medium text-gray-900">Usuario Creado Exitosamente</h3>
+          </div>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="px-6 pb-6">
+          <p class="text-sm text-gray-600 mb-4">
+            El usuario <span class="font-semibold text-gray-900">{{ successMessage.name }}</span> ha sido creado correctamente.
+          </p>
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <div class="flex">
+              <UIcon name="i-heroicons-information-circle" class="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div class="ml-3 flex-1">
+                <h4 class="text-sm font-medium text-blue-900 mb-1">Contraseña por defecto</h4>
+                <div class="flex items-center gap-2">
+                  <code class="bg-blue-100 px-2 py-1 rounded font-mono text-sm text-blue-800">Password123!</code>
+                  <button
+                    @click="copyPassword"
+                    class="flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-700 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 rounded transition-colors"
+                    :title="passwordCopied ? 'Copiado!' : 'Copiar contraseña'"
+                  >
+                    <UIcon v-if="!passwordCopied" name="i-heroicons-clipboard" class="w-4 h-4" />
+                    <UIcon v-else name="i-heroicons-check" class="w-4 h-4" />
+                    <span>{{ passwordCopied ? 'Copiado' : 'Copiar' }}</span>
+                  </button>
+                </div>
+                <p class="text-xs text-blue-700 mt-2">
+                  El usuario puede cambiar su contraseña después de iniciar sesión por primera vez.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Button -->
+          <div class="flex justify-end">
+            <button
+              type="button"
+              @click="showSuccessModal = false"
+              class="px-6 py-2 text-white rounded-md transition-colors font-medium"
+              style="background-color: #7db88a;"
+              onmouseover="this.style.backgroundColor='#6ba378'"
+              onmouseout="this.style.backgroundColor='#7db88a'"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Delete Confirmation Modal -->
     <div v-if="showDeleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
@@ -462,8 +523,6 @@
 </template>
 
 <script setup>
-import { users } from '~/database/users.js'
-
 definePageMeta({
   middleware: 'admin'
 })
@@ -477,6 +536,7 @@ const sidebarVisible = ref(false)
 const showAddModal = ref(false)
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
+const showSuccessModal = ref(false)
 
 // Form data
 const newUser = ref({
@@ -487,7 +547,7 @@ const newUser = ref({
 })
 
 const editUserData = ref({
-  id: null,
+  _id: null,
   name: '',
   email: '',
   role: 'user',
@@ -495,9 +555,28 @@ const editUserData = ref({
 })
 
 const userToDelete = ref(null)
+const successMessage = ref({ name: '' })
+const passwordCopied = ref(false)
 
-// Users list (this would typically come from an API)
-const usersList = ref(users)
+// Users list from MongoDB
+const usersList = ref([])
+
+// Cargar usuarios desde la API
+const loadUsers = async () => {
+  try {
+    const data = await $fetch('/api/users')
+    if (data.success) {
+      usersList.value = data.users
+    }
+  } catch (error) {
+    console.error('Error al cargar usuarios:', error)
+  }
+}
+
+// Cargar usuarios al montar el componente
+onMounted(() => {
+  loadUsers()
+})
 
 const handleLogout = () => {
   logout()
@@ -523,29 +602,46 @@ const closeAddModal = () => {
   }
 }
 
-const addUser = () => {
-  // Generate new ID
-  const newId = Math.max(...usersList.value.map(u => u.id)) + 1
+const addUser = async () => {
+  try {
+    const data = await $fetch('/api/users/create', {
+      method: 'POST',
+      body: {
+        name: newUser.value.name,
+        email: newUser.value.email,
+        role: newUser.value.role,
+        department: newUser.value.department,
+        password: 'Password123!' // Password por defecto
+      }
+    })
 
-  const user = {
-    id: newId,
-    name: newUser.value.name,
-    email: newUser.value.email,
-    role: newUser.value.role,
-    department: newUser.value.department,
-    createdAt: new Date().toISOString()
+    if (data.success) {
+      // Agregar el nuevo usuario a la lista
+      usersList.value.unshift(data.user)
+      closeAddModal()
+
+      // Mostrar modal de éxito
+      successMessage.value = { name: data.user.name }
+      showSuccessModal.value = true
+    }
+  } catch (error) {
+    console.error('Error al crear usuario:', error)
+
+    // Mostrar mensaje de error específico
+    if (error.statusCode === 409) {
+      alert('Ya existe un usuario con este correo electrónico')
+    } else if (error.data?.message) {
+      alert(error.data.message)
+    } else {
+      alert('Error al crear el usuario. Por favor intenta de nuevo.')
+    }
   }
-
-  usersList.value.push(user)
-  closeAddModal()
-
-  console.log('Usuario agregado:', user)
 }
 
 // Edit user functions
 const editUser = (userItem) => {
   editUserData.value = {
-    id: userItem.id,
+    _id: userItem._id,
     name: userItem.name,
     email: userItem.email,
     role: userItem.role,
@@ -557,7 +653,7 @@ const editUser = (userItem) => {
 const closeEditModal = () => {
   showEditModal.value = false
   editUserData.value = {
-    id: null,
+    _id: null,
     name: '',
     email: '',
     role: 'user',
@@ -566,7 +662,7 @@ const closeEditModal = () => {
 }
 
 const saveUserEdit = () => {
-  const index = usersList.value.findIndex(u => u.id === editUserData.value.id)
+  const index = usersList.value.findIndex(u => u._id === editUserData.value._id)
   if (index !== -1) {
     usersList.value[index] = {
       ...usersList.value[index],
@@ -588,7 +684,7 @@ const confirmDeleteUser = (userItem) => {
 }
 
 const deleteUser = () => {
-  const index = usersList.value.findIndex(u => u.id === userToDelete.value.id)
+  const index = usersList.value.findIndex(u => u._id === userToDelete.value._id)
   if (index !== -1) {
     usersList.value.splice(index, 1)
   }
@@ -597,6 +693,21 @@ const deleteUser = () => {
   userToDelete.value = null
 
   console.log('Usuario eliminado')
+}
+
+// Copiar contraseña al portapapeles
+const copyPassword = async () => {
+  try {
+    await navigator.clipboard.writeText('Password123!')
+    passwordCopied.value = true
+
+    // Resetear el estado después de 2 segundos
+    setTimeout(() => {
+      passwordCopied.value = false
+    }, 2000)
+  } catch (error) {
+    console.error('Error al copiar contraseña:', error)
+  }
 }
 </script>
 
