@@ -1,173 +1,225 @@
-// Composable para manejar tickets de forma centralizada
+// Composable para manejar tickets con MongoDB
 export const useTickets = () => {
   // Estado global de tickets
-  const allTickets = useState('tickets', () => [
-    {
-      id: '001',
-      subject: 'Cannot log in to portal',
-      userId: 2,
-      user: 'Usuario Normal',
-      status: 'Open',
-      priority: 'Medium',
-      dateOpened: new Date('2025-09-26'),
-      description: 'User unable to access the portal with correct credentials'
-    },
-    {
-      id: '002',
-      subject: 'Printer not responding',
-      userId: 3,
-      user: 'María García',
-      status: 'In Progress',
-      priority: 'High',
-      dateOpened: new Date('2025-09-25'),
-      description: 'Office printer not responding to print jobs from Marketing department'
-    },
-    {
-      id: '003',
-      subject: 'Software installation issue',
-      userId: 4,
-      user: 'Carlos López',
-      status: 'Closed',
-      priority: 'Low',
-      dateOpened: new Date('2025-09-24'),
-      dateClosed: new Date('2025-09-25'),
-      description: 'Need help installing development tools for new project'
-    },
-    {
-      id: '004',
-      subject: 'Password reset request',
-      userId: 2,
-      user: 'Usuario Normal',
-      status: 'Pending',
-      priority: 'Medium',
-      dateOpened: new Date('2025-09-23'),
-      description: 'User requesting password reset for email account'
-    },
-    {
-      id: '005',
-      subject: 'VPN connection issues',
-      userId: 3,
-      user: 'María García',
-      status: 'Open',
-      priority: 'High',
-      dateOpened: new Date('2025-09-22'),
-      description: 'Cannot connect to company VPN from home office'
-    },
-    {
-      id: '006',
-      subject: 'Database access problem',
-      userId: 4,
-      user: 'Carlos López',
-      status: 'In Progress',
-      priority: 'High',
-      dateOpened: new Date('2025-09-21'),
-      description: 'Unable to access development database for testing'
-    },
-    {
-      id: '007',
-      subject: 'Email not syncing',
-      userId: 3,
-      user: 'María García',
-      status: 'Closed',
-      priority: 'Medium',
-      dateOpened: new Date('2025-09-20'),
-      dateClosed: new Date('2025-09-21'),
-      description: 'Marketing team emails not syncing properly with mobile device'
-    },
-    {
-      id: '022',
-      subject: 'Server maintenance request',
-      userId: 1,
-      user: 'Administrador',
-      status: 'Closed',
-      priority: 'Low',
-      dateOpened: new Date('2025-09-19'),
-      dateClosed: new Date('2025-09-20'),
-      description: 'Request scheduled maintenance for development server'
-    },
-    {
-      id: '031',
-      subject: 'Server maintenance request',
-      userId: 1,
-      user: 'Administrador',
-      status: 'Open',
-      priority: 'Low',
-      dateOpened: new Date('2025-09-19'),
-      description: 'Request scheduled maintenance for development server'
-    },
-    {
-      id: '008',
-      subject: 'Server maintenance request',
-      userId: 4,
-      user: 'Carlos López',
-      status: 'Open',
-      priority: 'Low',
-      dateOpened: new Date('2025-09-19'),
-      description: 'Request scheduled maintenance for development server'
-    }
-  ])
+  const allTickets = useState('tickets', () => [])
+  const loading = useState('tickets.loading', () => false)
+  const error = useState('tickets.error', () => null)
 
-  // Función para actualizar el status de un ticket
-  const updateTicketStatus = (ticketId, newStatus) => {
-    const ticketIndex = allTickets.value.findIndex(t => t.id === ticketId)
-    if (ticketIndex !== -1) {
-      allTickets.value[ticketIndex].status = newStatus
-
-      // Si el ticket se cierra, agregar fecha de cierre
-      if (newStatus === 'Closed') {
-        allTickets.value[ticketIndex].dateClosed = new Date()
-      } else {
-        // Si se reabre, remover fecha de cierre
-        delete allTickets.value[ticketIndex].dateClosed
+  // Función para obtener el user ID del localStorage
+  const getUserId = () => {
+    if (process.client) {
+      const user = localStorage.getItem('user')
+      if (user) {
+        return JSON.parse(user)._id
       }
     }
+    return null
   }
 
-  // Función para agregar un nuevo ticket
-  const addTicket = (ticketData) => {
-    const nextId = String(allTickets.value.length + 1).padStart(3, '0')
-    const newTicket = {
-      id: nextId,
-      ...ticketData,
-      dateOpened: new Date()
+  // Función para obtener todos los tickets desde MongoDB
+  const fetchTickets = async (filters = {}) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const userId = getUserId()
+      if (!userId) {
+        throw new Error('Usuario no autenticado')
+      }
+
+      // Construir query params
+      const queryParams = new URLSearchParams(filters).toString()
+      const url = `/api/tickets${queryParams ? '?' + queryParams : ''}`
+
+      const data = await $fetch(url, {
+        method: 'GET',
+        headers: {
+          'x-user-id': userId
+        }
+      })
+
+      if (data.success) {
+        allTickets.value = data.tickets
+        return data.tickets
+      }
+    } catch (err) {
+      error.value = err.data?.message || err.message || 'Error al cargar tickets'
+      console.error('Error fetching tickets:', err)
+      return []
+    } finally {
+      loading.value = false
     }
-    allTickets.value.unshift(newTicket)
-    return newTicket
   }
 
-  // Función para obtener tickets por usuario
+  // Función para crear un nuevo ticket
+  const createTicket = async (ticketData) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const userId = getUserId()
+      if (!userId) {
+        throw new Error('Usuario no autenticado')
+      }
+
+      const data = await $fetch('/api/tickets', {
+        method: 'POST',
+        headers: {
+          'x-user-id': userId
+        },
+        body: ticketData
+      })
+
+      if (data.success) {
+        // Agregar al inicio del array local
+        allTickets.value.unshift(data.ticket)
+        return { success: true, ticket: data.ticket }
+      }
+    } catch (err) {
+      error.value = err.data?.message || err.message || 'Error al crear ticket'
+      console.error('Error creating ticket:', err)
+      return { success: false, error: error.value }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Función para obtener un ticket por ID
+  const getTicketById = async (ticketId) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const userId = getUserId()
+      if (!userId) {
+        throw new Error('Usuario no autenticado')
+      }
+
+      const data = await $fetch(`/api/tickets/${ticketId}`, {
+        method: 'GET',
+        headers: {
+          'x-user-id': userId
+        }
+      })
+
+      if (data.success) {
+        return data.ticket
+      }
+    } catch (err) {
+      error.value = err.data?.message || err.message || 'Error al obtener ticket'
+      console.error('Error getting ticket:', err)
+      return null
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Función para actualizar un ticket
+  const updateTicket = async (ticketId, updates) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const userId = getUserId()
+      if (!userId) {
+        throw new Error('Usuario no autenticado')
+      }
+
+      const data = await $fetch(`/api/tickets/${ticketId}`, {
+        method: 'PATCH',
+        headers: {
+          'x-user-id': userId
+        },
+        body: updates
+      })
+
+      if (data.success) {
+        // Actualizar en el array local
+        const index = allTickets.value.findIndex(t => t._id === ticketId)
+        if (index !== -1) {
+          allTickets.value[index] = data.ticket
+        }
+        return { success: true, ticket: data.ticket }
+      }
+    } catch (err) {
+      error.value = err.data?.message || err.message || 'Error al actualizar ticket'
+      console.error('Error updating ticket:', err)
+      return { success: false, error: error.value }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Función para agregar comentario
+  const addComment = async (ticketId, message) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const userId = getUserId()
+      if (!userId) {
+        throw new Error('Usuario no autenticado')
+      }
+
+      const data = await $fetch(`/api/tickets/${ticketId}/comments`, {
+        method: 'POST',
+        headers: {
+          'x-user-id': userId
+        },
+        body: { message }
+      })
+
+      if (data.success) {
+        // Actualizar ticket en el array local
+        const index = allTickets.value.findIndex(t => t._id === ticketId)
+        if (index !== -1) {
+          allTickets.value[index] = data.ticket
+        }
+        return { success: true, ticket: data.ticket }
+      }
+    } catch (err) {
+      error.value = err.data?.message || err.message || 'Error al agregar comentario'
+      console.error('Error adding comment:', err)
+      return { success: false, error: error.value }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Función para actualizar el status de un ticket (helper)
+  const updateTicketStatus = async (ticketId, newStatus) => {
+    return await updateTicket(ticketId, { status: newStatus })
+  }
+
+  // Función para obtener tickets por usuario (computed local)
   const getTicketsByUser = (userId) => {
-    return computed(() => allTickets.value.filter(ticket => ticket.userId === userId))
+    return computed(() => allTickets.value.filter(ticket => ticket.createdBy?._id === userId))
   }
 
-  // Función para obtener todos los tickets
+  // Función para obtener todos los tickets (computed)
   const getAllTickets = () => {
     return computed(() => allTickets.value)
   }
 
   // Función para obtener el conteo de tickets por usuario (excluyendo cerrados)
   const getTicketsCountByUser = (userId) => {
-    return allTickets.value.filter(ticket => ticket.userId === userId && ticket.status !== 'Closed').length
-  }
-
-  // Función para actualizar un ticket completo
-  const updateTicket = (ticketId, updates) => {
-    const ticketIndex = allTickets.value.findIndex(t => t.id === ticketId)
-    if (ticketIndex !== -1) {
-      allTickets.value[ticketIndex] = {
-        ...allTickets.value[ticketIndex],
-        ...updates
-      }
-    }
+    return allTickets.value.filter(
+      ticket => ticket.createdBy?._id === userId && ticket.status !== 'closed'
+    ).length
   }
 
   return {
     allTickets: readonly(allTickets),
+    loading: readonly(loading),
+    error: readonly(error),
+    fetchTickets,
+    createTicket,
+    getTicketById,
+    updateTicket,
     updateTicketStatus,
-    addTicket,
+    addComment,
     getTicketsByUser,
     getAllTickets,
-    getTicketsCountByUser,
-    updateTicket
+    getTicketsCountByUser
   }
 }

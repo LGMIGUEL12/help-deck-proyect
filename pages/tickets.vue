@@ -193,26 +193,26 @@
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="ticket in userTickets" :key="ticket.id" class="hover:bg-gray-50">
+                <tr v-for="ticket in userTickets" :key="ticket._id" class="hover:bg-gray-50">
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    #{{ ticket.id }}
+                    #{{ ticket._id?.slice(-6) }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
                       <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden mr-3">
                         <img
-                          v-if="getUserById(ticket.userId)?.profilePhoto"
-                          :src="getUserById(ticket.userId).profilePhoto"
-                          :alt="ticket.user"
+                          v-if="ticket.createdBy?.profilePhoto"
+                          :src="ticket.createdBy.profilePhoto"
+                          :alt="ticket.createdBy.name"
                           class="w-full h-full object-cover"
                         />
                         <span v-else class="text-xs font-medium text-gray-700 uppercase">
-                          {{ ticket.user?.charAt(0) }}
+                          {{ ticket.createdBy?.name?.charAt(0) }}
                         </span>
                       </div>
                       <div>
-                        <div class="text-sm font-medium text-gray-900">{{ ticket.subject }}</div>
-                        <div class="text-sm text-gray-500">{{ ticket.user }}</div>
+                        <div class="text-sm font-medium text-gray-900">{{ ticket.title }}</div>
+                        <div class="text-sm text-gray-500">{{ ticket.createdBy?.name }}</div>
                       </div>
                     </div>
                   </td>
@@ -227,12 +227,12 @@
                     </span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ formatDate(ticket.dateOpened) }}
+                    {{ formatDate(ticket.createdAt) }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <!-- Solo puede editar si el ticket está Open -->
                     <button
-                      v-if="ticket.status === 'Open'"
+                      v-if="ticket.status === 'open'"
                       @click="editTicket(ticket)"
                       class="mr-3"
                       style="color: #7db88a;"
@@ -403,14 +403,12 @@
 </template>
 
 <script setup>
-import { users } from '~/database/users.js'
-
 definePageMeta({
   middleware: 'auth'
 })
 
 const { user, logout } = useAuth()
-const { allTickets, addTicket, updateTicket: updateTicketGlobal } = useTickets()
+const { allTickets, loading, error, fetchTickets, createTicket: createTicketAPI, updateTicket: updateTicketAPI } = useTickets()
 
 // Reactive data
 const showCreateModal = ref(false)
@@ -419,99 +417,108 @@ const selectedTicket = ref(null)
 const sidebarVisible = ref(false)
 const newTicket = ref({
   subject: '',
-  priority: 'Medium',
+  priority: 'medium',
   description: ''
 })
 const editTicketData = ref({
   subject: '',
-  priority: 'Medium',
+  priority: 'medium',
   description: ''
 })
 
+// Cargar tickets al montar
+onMounted(async () => {
+  await fetchTickets()
+})
 
 // Computed property to show only current user's tickets (excluding closed tickets)
 const userTickets = computed(() => {
   return allTickets.value.filter(ticket =>
-    ticket.userId === user.value?.id && ticket.status !== 'Closed'
+    ticket.createdBy?._id === user.value?._id && ticket.status !== 'closed'
   )
 })
 
 // Methods
 const getStatusClass = (status) => {
   const classes = {
-    'Open': 'bg-green-100 text-green-800',
-    'In Progress': 'bg-blue-100 text-blue-800',
-    'Closed': 'bg-gray-100 text-gray-800',
-    'Pending': 'bg-yellow-100 text-yellow-800'
+    'open': 'bg-green-100 text-green-800',
+    'in_progress': 'bg-blue-100 text-blue-800',
+    'closed': 'bg-gray-100 text-gray-800',
+    'resolved': 'bg-purple-100 text-purple-800'
   }
   return classes[status] || 'bg-gray-100 text-gray-800'
 }
 
 const getPriorityClass = (priority) => {
   const classes = {
-    'Low': 'text-green-600',
-    'Medium': 'text-yellow-600',
-    'High': 'text-red-600'
+    'low': 'text-green-600',
+    'medium': 'text-yellow-600',
+    'high': 'text-red-600',
+    'urgent': 'text-red-800'
   }
   return classes[priority] || 'text-gray-600'
 }
 
 const formatDate = (date) => {
-  return new Intl.DateTimeFormat('en-US', {
+  return new Intl.DateTimeFormat('es-ES', {
     year: 'numeric',
     month: 'short',
     day: 'numeric'
-  }).format(date)
+  }).format(new Date(date))
 }
 
-const createTicket = () => {
+const createTicket = async () => {
   const ticketData = {
-    subject: newTicket.value.subject,
-    userId: user.value?.id || 1,
-    user: user.value?.name || 'Current User',
-    status: 'Open',
-    priority: newTicket.value.priority,
-    description: newTicket.value.description
+    title: newTicket.value.subject,
+    description: newTicket.value.description,
+    priority: newTicket.value.priority.toLowerCase(),
+    category: 'General'
   }
 
-  addTicket(ticketData)
+  const result = await createTicketAPI(ticketData)
 
-  // Reset form
-  newTicket.value = {
-    subject: '',
-    priority: 'Medium',
-    description: ''
+  if (result.success) {
+    // Reset form
+    newTicket.value = {
+      subject: '',
+      priority: 'medium',
+      description: ''
+    }
+    showCreateModal.value = false
+  } else {
+    alert('Error al crear ticket: ' + result.error)
   }
-
-  showCreateModal.value = false
 }
 
 const editTicket = (ticket) => {
   // Solo puede editar si el ticket está Open
-  if (ticket.status !== 'Open') {
-    console.warn('Solo puedes editar tickets en estado Open')
+  if (ticket.status !== 'open') {
+    console.warn('Solo puedes editar tickets en estado Abierto')
     return
   }
 
   selectedTicket.value = ticket
   editTicketData.value = {
-    subject: ticket.subject,
+    subject: ticket.title,
     priority: ticket.priority,
     description: ticket.description
   }
   showEditModal.value = true
 }
 
-const updateTicket = () => {
+const updateTicket = async () => {
   if (selectedTicket.value) {
     const updates = {
-      subject: editTicketData.value.subject,
-      priority: editTicketData.value.priority,
+      title: editTicketData.value.subject,
+      priority: editTicketData.value.priority.toLowerCase(),
       description: editTicketData.value.description
-      // Status no se cambia - solo admin puede hacer eso
     }
 
-    updateTicketGlobal(selectedTicket.value.id, updates)
+    const result = await updateTicketAPI(selectedTicket.value._id, updates)
+
+    if (!result.success) {
+      alert('Error al actualizar ticket: ' + result.error)
+    }
   }
   showEditModal.value = false
   selectedTicket.value = null
@@ -520,11 +527,6 @@ const updateTicket = () => {
 const handleLogout = () => {
   logout()
   navigateTo('/login')
-}
-
-// Función para obtener el usuario completo por ID
-const getUserById = (userId) => {
-  return users.find(u => u.id === userId)
 }
 </script>
 

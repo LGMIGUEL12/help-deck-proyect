@@ -212,7 +212,7 @@
           <p class="mt-1 max-w-2xl text-sm text-gray-500">Gestión de usuarios del sistema</p>
         </div>
         <ul class="divide-y divide-gray-200">
-          <li v-for="user in usersList" :key="user.id" class="px-4 py-4 sm:px-6">
+          <li v-for="user in usersList" :key="user._id" class="px-4 py-4 sm:px-6">
             <div
               class="flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors"
               @click="viewUserTickets(user)"
@@ -235,7 +235,7 @@
                   <div class="text-sm font-medium text-gray-900">{{ user.name }}</div>
                   <div class="text-sm text-gray-500">{{ user.email }}</div>
                   <div class="text-xs text-gray-400">{{ user.department }}</div>
-                  <div class="text-xs" style="color: #7db88a;">{{ getUserTicketsCount(user.id) }} ticket(s)</div>
+                  <div class="text-xs" style="color: #7db88a;">{{ getUserTicketsCount(user._id) }} ticket(s)</div>
                 </div>
               </div>
               <div class="flex items-center space-x-2">
@@ -282,25 +282,25 @@
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="ticket in selectedUserTickets" :key="ticket.id" class="hover:bg-gray-50">
+                <tr v-for="ticket in selectedUserTickets" :key="ticket._id" class="hover:bg-gray-50">
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    #{{ ticket.id }}
+                    #{{ ticket._id?.slice(-6) }}
                   </td>
                   <td class="px-6 py-4">
-                    <div class="text-sm font-medium text-gray-900">{{ ticket.subject }}</div>
+                    <div class="text-sm font-medium text-gray-900">{{ ticket.title }}</div>
                     <div class="text-sm text-gray-500">{{ ticket.description }}</div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <select
                       :value="ticket.status"
-                      @change="updateTicketStatus(ticket, $event.target.value)"
+                      @change="handleStatusChange(ticket._id, $event.target.value)"
                       class="text-xs font-semibold rounded-md border-0 focus:ring-2 focus:ring-blue-500 cursor-pointer px-2 py-1"
                       :class="getSelectStatusClass(ticket.status)"
                     >
-                      <option value="Open">Open</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Pending">Pending</option>
-                      <option value="Closed">Closed</option>
+                      <option value="open">Open</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="resolved">Resolved</option>
+                      <option value="closed">Closed</option>
                     </select>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
@@ -309,7 +309,7 @@
                     </span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ formatDate(ticket.dateOpened) }}
+                    {{ formatDate(ticket.createdAt) }}
                   </td>
                 </tr>
               </tbody>
@@ -351,14 +351,12 @@
 </template>
 
 <script setup>
-import { users } from '~/database/users.js'
-
 definePageMeta({
   middleware: 'admin'
 })
 
 const { user, logout } = useAuth()
-const { allTickets, updateTicketStatus: updateTicketStatusGlobal, getTicketsCountByUser } = useTickets()
+const { allTickets, loading, fetchTickets, updateTicket, getTicketsCountByUser } = useTickets()
 
 // Sidebar visibility
 const sidebarVisible = ref(false)
@@ -369,8 +367,22 @@ const selectedUser = ref(null)
 const selectedUserTickets = ref([])
 const ticketChanges = ref({})
 
-// Datos de usuarios actualizados
-const usersList = ref(users)
+// Cargar tickets al montar
+onMounted(async () => {
+  await fetchTickets()
+})
+
+// Obtener lista única de usuarios desde los tickets
+const usersList = computed(() => {
+  const usersMap = new Map()
+  allTickets.value.forEach(ticket => {
+    if (ticket.createdBy && !usersMap.has(ticket.createdBy._id)) {
+      usersMap.set(ticket.createdBy._id, ticket.createdBy)
+    }
+  })
+  return Array.from(usersMap.values())
+})
+
 const totalUsers = computed(() => usersList.value.length)
 const adminUsers = computed(() => usersList.value.filter(u => u.role === 'admin').length)
 const regularUsers = computed(() => usersList.value.filter(u => u.role === 'user').length)
@@ -382,13 +394,15 @@ const handleLogout = () => {
 
 // Funciones para manejo de tickets por usuario
 const getUserTicketsCount = (userId) => {
-  return getTicketsCountByUser(userId)
+  return allTickets.value.filter(
+    ticket => ticket.createdBy?._id === userId && ticket.status !== 'closed'
+  ).length
 }
 
 const viewUserTickets = (userToView) => {
   selectedUser.value = userToView
   selectedUserTickets.value = allTickets.value.filter(ticket =>
-    ticket.userId === userToView.id && ticket.status !== 'Closed'
+    ticket.createdBy?._id === userToView._id && ticket.status !== 'closed'
   )
   showUserTicketsModal.value = true
 }
@@ -397,25 +411,40 @@ const closeUserTicketsModal = () => {
   showUserTicketsModal.value = false
   selectedUser.value = null
   selectedUserTickets.value = []
-  ticketChanges.value = {} // Limpiar cambios pendientes al cerrar
+  ticketChanges.value = {}
+}
+
+// Función para cambiar el estado de un ticket
+const handleStatusChange = async (ticketId, newStatus) => {
+  const result = await updateTicket(ticketId, { status: newStatus.toLowerCase() })
+  if (result.success) {
+    // Actualizar en la lista del modal
+    const modalTicketIndex = selectedUserTickets.value.findIndex(t => t._id === ticketId)
+    if (modalTicketIndex !== -1) {
+      selectedUserTickets.value[modalTicketIndex] = result.ticket
+    }
+  } else {
+    alert('Error al actualizar estado: ' + result.error)
+  }
 }
 
 // Funciones para estilos de tickets
 const getStatusClass = (status) => {
   const classes = {
-    'Open': 'bg-green-100 text-green-800',
-    'In Progress': 'bg-blue-100 text-blue-800',
-    'Closed': 'bg-gray-100 text-gray-800',
-    'Pending': 'bg-yellow-100 text-yellow-800'
+    'open': 'bg-green-100 text-green-800',
+    'in_progress': 'bg-blue-100 text-blue-800',
+    'closed': 'bg-gray-100 text-gray-800',
+    'resolved': 'bg-purple-100 text-purple-800'
   }
   return classes[status] || 'bg-gray-100 text-gray-800'
 }
 
 const getPriorityClass = (priority) => {
   const classes = {
-    'Low': 'text-green-600',
-    'Medium': 'text-yellow-600',
-    'High': 'text-red-600'
+    'low': 'text-green-600',
+    'medium': 'text-yellow-600',
+    'high': 'text-red-600',
+    'urgent': 'text-red-800'
   }
   return classes[priority] || 'text-gray-600'
 }
@@ -425,42 +454,16 @@ const formatDate = (date) => {
     year: 'numeric',
     month: 'short',
     day: 'numeric'
-  }).format(date)
-}
-
-// Función para marcar cambios en tickets (sin guardar aún)
-const updateTicketStatus = (ticket, newStatus) => {
-  // Guardar el cambio pendiente
-  ticketChanges.value[ticket.id] = newStatus
-
-  // Actualizar visualmente en la lista filtrada del modal
-  const modalTicketIndex = selectedUserTickets.value.findIndex(t => t.id === ticket.id)
-  if (modalTicketIndex !== -1) {
-    selectedUserTickets.value[modalTicketIndex].status = newStatus
-  }
-}
-
-// Función para guardar todos los cambios acumulados
-const saveTicketChanges = () => {
-  Object.keys(ticketChanges.value).forEach(ticketId => {
-    const newStatus = ticketChanges.value[ticketId]
-    updateTicketStatusGlobal(ticketId, newStatus)
-  })
-
-  // Limpiar cambios pendientes
-  ticketChanges.value = {}
-
-  // Mostrar mensaje de confirmación (opcional)
-  console.log('Cambios guardados exitosamente')
+  }).format(new Date(date))
 }
 
 // Función para obtener clases CSS del select según el status
 const getSelectStatusClass = (status) => {
   const classes = {
-    'Open': 'bg-green-100 text-green-800',
-    'In Progress': 'bg-blue-100 text-blue-800',
-    'Closed': 'bg-gray-100 text-gray-800',
-    'Pending': 'bg-yellow-100 text-yellow-800'
+    'open': 'bg-green-100 text-green-800',
+    'in_progress': 'bg-blue-100 text-blue-800',
+    'closed': 'bg-gray-100 text-gray-800',
+    'resolved': 'bg-purple-100 text-purple-800'
   }
   return classes[status] || 'bg-gray-100 text-gray-800'
 }

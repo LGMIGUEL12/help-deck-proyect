@@ -269,12 +269,12 @@
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="ticket in filteredTickets" :key="ticket.id" class="hover:bg-gray-50 cursor-pointer" @click="viewTicket(ticket)">
+                <tr v-for="ticket in filteredTickets" :key="ticket._id" class="hover:bg-gray-50 cursor-pointer" @click="viewTicket(ticket)">
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    #{{ ticket.id }}
+                    #{{ ticket._id?.slice(-6) }}
                   </td>
                   <td class="px-6 py-4">
-                    <div class="text-sm font-medium text-gray-900">{{ ticket.subject }}</div>
+                    <div class="text-sm font-medium text-gray-900">{{ ticket.title }}</div>
                     <div class="text-sm text-gray-500 truncate max-w-xs">{{ ticket.description }}</div>
                   </td>
                   <td v-if="user?.role === 'admin'" class="px-6 py-4 whitespace-nowrap">
@@ -282,18 +282,18 @@
                       <div class="flex-shrink-0 h-8 w-8">
                         <div class="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
                           <img
-                            v-if="getUserById(ticket.userId)?.profilePhoto"
-                            :src="getUserById(ticket.userId).profilePhoto"
-                            :alt="ticket.user"
+                            v-if="ticket.createdBy?.profilePhoto"
+                            :src="ticket.createdBy.profilePhoto"
+                            :alt="ticket.createdBy.name"
                             class="w-full h-full object-cover"
                           />
                           <span v-else class="text-xs font-medium text-gray-700 uppercase">
-                            {{ ticket.user?.charAt(0) }}
+                            {{ ticket.createdBy?.name?.charAt(0) }}
                           </span>
                         </div>
                       </div>
                       <div class="ml-3">
-                        <div class="text-sm font-medium text-gray-900">{{ ticket.user }}</div>
+                        <div class="text-sm font-medium text-gray-900">{{ ticket.createdBy?.name }}</div>
                       </div>
                     </div>
                   </td>
@@ -303,10 +303,10 @@
                     </span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ formatDate(ticket.dateOpened) }}
+                    {{ formatDate(ticket.createdAt) }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ formatDate(ticket.dateClosed) }}
+                    {{ formatDate(ticket.closedAt || ticket.resolvedAt) }}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -335,7 +335,7 @@
       <div class="bg-white rounded-lg w-full max-w-2xl mx-auto max-h-[90vh] overflow-hidden">
         <div class="flex justify-between items-center p-6 border-b">
           <div>
-            <h3 class="text-lg font-medium text-gray-900">Detalles del Ticket #{{ selectedTicket?.id }}</h3>
+            <h3 class="text-lg font-medium text-gray-900">Detalles del Ticket #{{ selectedTicket?._id?.slice(-6) }}</h3>
             <p class="text-sm text-gray-500 mt-1">Vista de solo lectura - Ticket cerrado</p>
           </div>
           <button @click="closeViewModal" class="text-gray-400 hover:text-gray-600">
@@ -350,7 +350,7 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Asunto</label>
               <div class="bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-gray-900">
-                {{ selectedTicket?.subject }}
+                {{ selectedTicket?.title }}
               </div>
             </div>
 
@@ -370,18 +370,18 @@
                 <div class="bg-gray-50 border border-gray-200 rounded-md px-3 py-2 flex items-center">
                   <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden mr-3">
                     <img
-                      v-if="getUserById(selectedTicket?.userId)?.profilePhoto"
-                      :src="getUserById(selectedTicket?.userId).profilePhoto"
-                      :alt="selectedTicket?.user"
+                      v-if="selectedTicket?.createdBy?.profilePhoto"
+                      :src="selectedTicket.createdBy.profilePhoto"
+                      :alt="selectedTicket.createdBy.name"
                       class="w-full h-full object-cover"
                     />
                     <span v-else class="text-xs font-medium text-gray-700 uppercase">
-                      {{ selectedTicket?.user?.charAt(0) }}
+                      {{ selectedTicket?.createdBy?.name?.charAt(0) }}
                     </span>
                   </div>
                   <div>
-                    <div class="text-sm font-medium text-gray-900">{{ selectedTicket?.user }}</div>
-                    <div class="text-xs text-gray-500">{{ getUserById(selectedTicket?.userId)?.department }}</div>
+                    <div class="text-sm font-medium text-gray-900">{{ selectedTicket?.createdBy?.name }}</div>
+                    <div class="text-xs text-gray-500">{{ selectedTicket?.createdBy?.department }}</div>
                   </div>
                 </div>
               </div>
@@ -400,7 +400,7 @@
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de apertura</label>
                 <div class="bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-gray-900">
-                  {{ formatDate(selectedTicket?.dateOpened) }}
+                  {{ formatDate(selectedTicket?.createdAt) }}
                 </div>
               </div>
 
@@ -408,7 +408,7 @@
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de cierre</label>
                 <div class="bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-gray-900">
-                  {{ formatDate(selectedTicket?.dateClosed) }}
+                  {{ formatDate(selectedTicket?.closedAt || selectedTicket?.resolvedAt) }}
                 </div>
               </div>
 
@@ -447,14 +447,12 @@
 </template>
 
 <script setup>
-import { users } from '~/database/users.js'
-
 definePageMeta({
   middleware: 'auth'
 })
 
 const { user, logout } = useAuth()
-const { allTickets } = useTickets()
+const { allTickets, fetchTickets } = useTickets()
 
 // Sidebar visibility
 const sidebarVisible = ref(false)
@@ -467,15 +465,22 @@ const selectedUser = ref('all')
 const showViewModal = ref(false)
 const selectedTicket = ref(null)
 
+// Cargar tickets al montar
+onMounted(async () => {
+  await fetchTickets()
+})
+
 // Computed properties for closed tickets
 const closedTickets = computed(() => {
-  const closed = allTickets.value.filter(ticket => ticket.status === 'Closed')
+  const closed = allTickets.value.filter(ticket =>
+    ticket.status === 'closed' || ticket.status === 'resolved'
+  )
 
   // If user is admin, show all closed tickets, otherwise only their own
   if (user.value?.role === 'admin') {
     return closed
   } else {
-    return closed.filter(ticket => ticket.userId === user.value?.id)
+    return closed.filter(ticket => ticket.createdBy?._id === user.value?._id)
   }
 })
 
@@ -483,10 +488,10 @@ const closedTickets = computed(() => {
 const uniqueUsers = computed(() => {
   const users = new Map()
   allTickets.value.forEach(ticket => {
-    if (!users.has(ticket.userId)) {
-      users.set(ticket.userId, {
-        id: ticket.userId,
-        name: ticket.user
+    if (ticket.createdBy && !users.has(ticket.createdBy._id)) {
+      users.set(ticket.createdBy._id, {
+        id: ticket.createdBy._id,
+        name: ticket.createdBy.name
       })
     }
   })
@@ -499,7 +504,7 @@ const filteredTickets = computed(() => {
 
   // Filter by user (admin only)
   if (user.value?.role === 'admin' && selectedUser.value !== 'all') {
-    filtered = filtered.filter(ticket => ticket.userId === selectedUser.value)
+    filtered = filtered.filter(ticket => ticket.createdBy?._id === selectedUser.value)
   }
 
   // Filter by period
@@ -510,7 +515,7 @@ const filteredTickets = computed(() => {
   switch (selectedPeriod.value) {
     case 'thisMonth':
       filtered = filtered.filter(ticket => {
-        const closedDate = new Date(ticket.dateClosed)
+        const closedDate = new Date(ticket.closedAt || ticket.resolvedAt || ticket.updatedAt)
         return closedDate.getMonth() === currentMonth && closedDate.getFullYear() === currentYear
       })
       break
@@ -518,20 +523,24 @@ const filteredTickets = computed(() => {
       const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1
       const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear
       filtered = filtered.filter(ticket => {
-        const closedDate = new Date(ticket.dateClosed)
+        const closedDate = new Date(ticket.closedAt || ticket.resolvedAt || ticket.updatedAt)
         return closedDate.getMonth() === lastMonth && closedDate.getFullYear() === lastMonthYear
       })
       break
     case 'thisYear':
       filtered = filtered.filter(ticket => {
-        const closedDate = new Date(ticket.dateClosed)
+        const closedDate = new Date(ticket.closedAt || ticket.resolvedAt || ticket.updatedAt)
         return closedDate.getFullYear() === currentYear
       })
       break
   }
 
   // Sort by date closed (most recent first)
-  return filtered.sort((a, b) => new Date(b.dateClosed) - new Date(a.dateClosed))
+  return filtered.sort((a, b) => {
+    const dateA = new Date(a.closedAt || a.resolvedAt || a.updatedAt)
+    const dateB = new Date(b.closedAt || b.resolvedAt || b.updatedAt)
+    return dateB - dateA
+  })
 })
 
 // Stats calculations
@@ -541,7 +550,7 @@ const thisMonthClosed = computed(() => {
   const currentYear = now.getFullYear()
 
   return closedTickets.value.filter(ticket => {
-    const closedDate = new Date(ticket.dateClosed)
+    const closedDate = new Date(ticket.closedAt || ticket.resolvedAt || ticket.updatedAt)
     return closedDate.getMonth() === currentMonth && closedDate.getFullYear() === currentYear
   }).length
 })
@@ -550,8 +559,8 @@ const averageResolutionTime = computed(() => {
   if (closedTickets.value.length === 0) return 'N/A'
 
   const totalDays = closedTickets.value.reduce((sum, ticket) => {
-    const opened = new Date(ticket.dateOpened)
-    const closed = new Date(ticket.dateClosed)
+    const opened = new Date(ticket.createdAt)
+    const closed = new Date(ticket.closedAt || ticket.resolvedAt || ticket.updatedAt)
     const diffTime = Math.abs(closed - opened)
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     return sum + diffDays
@@ -569,14 +578,16 @@ const handleLogout = () => {
 
 const getPriorityClass = (priority) => {
   const classes = {
-    'Low': 'text-green-600',
-    'Medium': 'text-yellow-600',
-    'High': 'text-red-600'
+    'low': 'text-green-600',
+    'medium': 'text-yellow-600',
+    'high': 'text-red-600',
+    'urgent': 'text-red-800'
   }
   return classes[priority] || 'text-gray-600'
 }
 
 const formatDate = (date) => {
+  if (!date) return 'N/A'
   return new Intl.DateTimeFormat('es-ES', {
     year: 'numeric',
     month: 'short',
@@ -587,11 +598,13 @@ const formatDate = (date) => {
 }
 
 const getResolutionTime = (ticket) => {
-  const opened = new Date(ticket.dateOpened)
-  const closed = new Date(ticket.dateClosed)
+  if (!ticket) return 'N/A'
+  const opened = new Date(ticket.createdAt)
+  const closed = new Date(ticket.closedAt || ticket.resolvedAt || ticket.updatedAt)
   const diffTime = Math.abs(closed - opened)
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
+  if (diffDays === 0) return 'Menos de 1 día'
   if (diffDays === 1) return '1 día'
   if (diffDays < 7) return `${diffDays} días`
 
@@ -602,11 +615,6 @@ const getResolutionTime = (ticket) => {
   if (remainingDays === 0) return `${weeks} semanas`
 
   return `${weeks}s ${remainingDays}d`
-}
-
-// Función para obtener el usuario completo por ID
-const getUserById = (userId) => {
-  return users.find(u => u.id === userId)
 }
 
 // Funciones para manejar el modal de vista
