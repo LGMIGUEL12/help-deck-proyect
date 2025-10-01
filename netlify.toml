@@ -1,0 +1,46 @@
+# Configuración de Netlify para Nuxt 3
+[build]
+  command = "npm run build"
+  publish = ".output/public"
+
+# Configuración de funciones serverless
+[functions]
+  # Directorio donde Nuxt genera las funciones serverless
+  directory = ".output/server"
+  # Aumentar timeout para operaciones de base de datos
+  node_bundler = "esbuild"
+
+# Variables de entorno por defecto (SOBRESCRIBIR en Netlify UI)
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+# Reglas de redirección para SPA
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+# Headers de seguridad
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Permitir Google OAuth
+    Cross-Origin-Opener-Policy = "same-origin-allow-popups"
+    Cross-Origin-Embedder-Policy = "unsafe-none"
+
+# Headers específicos para archivos estáticos
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/_nuxt/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
