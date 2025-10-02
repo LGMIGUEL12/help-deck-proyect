@@ -145,207 +145,261 @@
 
       <!-- Content Area -->
       <main class="flex-1 p-6 bg-gray-50">
-      <!-- Dashboard Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <!-- Total Users Card -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 0a4 4 0 11-8-4.5 4 4 0 018 4.5z" />
-                </svg>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">Total Usuarios</dt>
-                  <dd class="text-lg font-medium text-gray-900">{{ totalUsers }}</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- Header and Filters Section -->
+        <div class="mb-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Todos los Tickets</h3>
 
-        <!-- Admin Users Card -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">Administradores</dt>
-                  <dd class="text-lg font-medium text-gray-900">{{ adminUsers }}</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Regular Users Card -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-          <div class="p-5">
-            <div class="flex items-center">
-              <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-              <div class="ml-5 w-0 flex-1">
-                <dl>
-                  <dt class="text-sm font-medium text-gray-500 truncate">Usuarios Regulares</dt>
-                  <dd class="text-lg font-medium text-gray-900">{{ regularUsers }}</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Users Table -->
-      <div class="bg-white shadow overflow-hidden sm:rounded-md">
-        <div class="px-4 py-5 sm:px-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">Lista de Usuarios</h3>
-          <p class="mt-1 max-w-2xl text-sm text-gray-500">Gestión de usuarios del sistema</p>
-        </div>
-        <ul class="divide-y divide-gray-200">
-          <li v-for="user in usersList" :key="user._id" class="px-4 py-4 sm:px-6">
-            <div
-              class="flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors"
-              @click="viewUserTickets(user)"
-            >
-              <div class="flex items-center">
-                <div class="flex-shrink-0 h-10 w-10">
-                  <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
-                    <img
-                      v-if="user.profilePhoto"
-                      :src="user.profilePhoto"
-                      :alt="user.name"
-                      class="w-full h-full object-cover"
-                    />
-                    <span v-else class="text-sm font-medium text-gray-700 uppercase">
-                      {{ user.name.charAt(0) }}
-                    </span>
-                  </div>
-                </div>
-                <div class="ml-4">
-                  <div class="text-sm font-medium text-gray-900">{{ user.name }}</div>
-                  <div class="text-sm text-gray-500">{{ user.email }}</div>
-                  <div class="text-xs text-gray-400">{{ user.department }}</div>
-                  <div class="text-xs" style="color: #7db88a;">{{ getUserTicketsCount(user._id) }} ticket(s)</div>
-                </div>
-              </div>
-              <div class="flex items-center space-x-2">
-                <span
-                  :class="[
-                    'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                    user.role === 'admin' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
-                  ]"
+          <!-- Filters -->
+          <div class="bg-white rounded-lg shadow p-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- Filter by Date -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Ordenar por Fecha</label>
+                <select
+                  v-model="dateFilter"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 bg-white text-gray-700"
+                  style="focus:ring-color: #7db88a;"
                 >
-                  {{ user.role === 'admin' ? 'Administrador' : 'Usuario' }}
-                </span>
-                <div class="text-sm text-gray-500">
-                  {{ new Date(user.createdAt).toLocaleDateString() }}
-                </div>
-                <UIcon name="i-heroicons-chevron-right" class="w-5 h-5 text-gray-400" />
+                  <option value="newest">Más recientes primero</option>
+                  <option value="oldest">Más antiguos primero</option>
+                </select>
+              </div>
+
+              <!-- Filter by Priority -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Filtrar por Prioridad</label>
+                <select
+                  v-model="priorityFilter"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 bg-white text-gray-700"
+                  style="focus:ring-color: #7db88a;"
+                >
+                  <option value="all">Todas las prioridades</option>
+                  <option value="urgent">Urgente</option>
+                  <option value="high">Alta</option>
+                  <option value="medium">Media</option>
+                  <option value="low">Baja</option>
+                </select>
+              </div>
+
+              <!-- Filter by Status -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Filtrar por Estado</label>
+                <select
+                  v-model="statusFilter"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 bg-white text-gray-700"
+                  style="focus:ring-color: #7db88a;"
+                >
+                  <option value="all">Todos los estados</option>
+                  <option value="open">Abierto</option>
+                  <option value="in_progress">En Progreso</option>
+                  <option value="resolved">Resuelto</option>
+                  <option value="closed">Cerrado</option>
+                </select>
               </div>
             </div>
-          </li>
-        </ul>
-      </div>
 
-      <!-- Modal para mostrar tickets del usuario -->
-      <div v-if="showUserTicketsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg w-full max-w-4xl mx-auto max-h-[80vh] overflow-hidden">
-          <div class="flex justify-between items-center p-6 border-b">
-            <div>
-              <h3 class="text-lg font-medium text-gray-900">Tickets de {{ selectedUser?.name }}</h3>
-              <p class="text-sm text-gray-500">{{ selectedUserTickets.length }} ticket(s) encontrado(s)</p>
-            </div>
-            <button @click="closeUserTicketsModal" class="text-gray-400 hover:text-gray-600">
-              <UIcon name="i-heroicons-x-mark" class="w-6 h-6" />
-            </button>
-          </div>
-
-          <div class="overflow-y-auto max-h-[60vh]">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50 sticky top-0">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="ticket in selectedUserTickets" :key="ticket._id" class="hover:bg-gray-50">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    #{{ ticket._id?.slice(-6) }}
-                  </td>
-                  <td class="px-6 py-4">
-                    <div class="text-sm font-medium text-gray-900">{{ ticket.title }}</div>
-                    <div class="text-sm text-gray-500">{{ ticket.description }}</div>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <select
-                      :value="ticket.status"
-                      @change="handleStatusChange(ticket._id, $event.target.value)"
-                      class="text-xs font-semibold rounded-md border-0 focus:ring-2 focus:ring-blue-500 cursor-pointer px-2 py-1"
-                      :class="getSelectStatusClass(ticket.status)"
-                    >
-                      <option value="open">Open</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="resolved">Resolved</option>
-                      <option value="closed">Closed</option>
-                    </select>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span :class="getPriorityClass(ticket.priority)" class="text-sm font-medium">
-                      {{ ticket.priority }}
-                    </span>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ formatDate(ticket.createdAt) }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <div v-if="selectedUserTickets.length === 0" class="text-center py-8">
-              <p class="text-gray-500">Este usuario no ha creado ningún ticket aún.</p>
-            </div>
-          </div>
-
-          <div class="flex justify-between items-center p-6 border-t bg-gray-50">
-            <div v-if="Object.keys(ticketChanges).length > 0" class="text-sm text-yellow-600">
-              <span class="font-medium">{{ Object.keys(ticketChanges).length }}</span> cambio(s) pendiente(s)
-            </div>
-            <div v-else></div>
-            <div class="flex space-x-3">
-              <button
-                v-if="Object.keys(ticketChanges).length > 0"
-                @click="saveTicketChanges"
-                class="px-4 py-2 text-white rounded-md transition-colors"
-                style="background-color: #7db88a;"
-                onmouseover="this.style.backgroundColor='#6ba378'"
-                onmouseout="this.style.backgroundColor='#7db88a'"
-              >
-                Guardar Cambios
-              </button>
-              <button
-                @click="closeUserTicketsModal"
-                class="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
-              >
-                Cerrar
-              </button>
+            <!-- Stats -->
+            <div class="mt-4 pt-4 border-t border-gray-200">
+              <p class="text-sm text-gray-600">
+                Mostrando <span class="font-semibold">{{ filteredTickets.length }}</span> de <span class="font-semibold">{{ allTickets.length }}</span> tickets
+              </p>
             </div>
           </div>
         </div>
-      </div>
+
+        <!-- Tickets Grid -->
+        <div v-if="filteredTickets.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            v-for="ticket in filteredTickets"
+            :key="ticket._id"
+            @click="openTicketDetailModal(ticket)"
+            class="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 border border-gray-200 overflow-hidden cursor-pointer hover:scale-[1.02]"
+          >
+            <!-- Card Header -->
+            <div class="p-4 border-b border-gray-100" style="background-color: #f9fafb;">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-gray-500">
+                  #{{ ticket._id?.slice(-6) }}
+                </span>
+                <span :class="getStatusClass(ticket.status)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                  {{ ticket.status }}
+                </span>
+              </div>
+              <h4 class="text-base font-semibold text-gray-900 line-clamp-2">
+                {{ ticket.title }}
+              </h4>
+            </div>
+
+            <!-- Card Body -->
+            <div class="p-4 space-y-3">
+              <!-- Description Preview -->
+              <div>
+                <p class="text-sm text-gray-600 line-clamp-3">
+                  {{ ticket.description || 'Sin descripción' }}
+                </p>
+              </div>
+
+              <!-- Priority and Date -->
+              <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                <div class="flex items-center space-x-2">
+                  <UIcon name="i-heroicons-exclamation-triangle" class="w-4 h-4" :class="getPriorityIconClass(ticket.priority)" />
+                  <span :class="getPriorityClass(ticket.priority)" class="text-xs font-medium uppercase">
+                    {{ ticket.priority }}
+                  </span>
+                </div>
+                <div class="flex items-center space-x-1 text-xs text-gray-500">
+                  <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
+                  <span>{{ formatDate(ticket.createdAt) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Footer - User Info -->
+            <div class="px-4 py-3 border-t border-gray-100 bg-gray-50">
+              <div class="flex items-center space-x-2">
+                <div class="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <img
+                    v-if="ticket.createdBy?.profilePhoto"
+                    :src="ticket.createdBy.profilePhoto"
+                    :alt="ticket.createdBy.name"
+                    class="w-full h-full object-cover"
+                  />
+                  <span v-else class="text-xs font-medium text-gray-700 uppercase">
+                    {{ ticket.createdBy?.name?.charAt(0) }}
+                  </span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs text-gray-600 truncate">{{ ticket.createdBy?.email }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div v-else class="bg-white rounded-lg shadow p-12 text-center">
+          <UIcon name="i-heroicons-inbox" class="w-16 h-16 mx-auto text-gray-300 mb-4" />
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No hay tickets que coincidan con los filtros</h3>
+          <p class="text-sm text-gray-500">Intenta ajustar los filtros para ver más resultados</p>
+        </div>
       </main>
+    </div>
+
+    <!-- Ticket Detail Modal -->
+    <div v-if="showTicketDetailModal && selectedTicket" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg w-full max-w-3xl mx-auto max-h-[90vh] overflow-y-auto">
+        <!-- Modal Header -->
+        <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <div>
+            <h3 class="text-xl font-semibold text-gray-900">Detalles del Ticket</h3>
+            <p class="text-sm text-gray-500">ID: #{{ selectedTicket._id?.slice(-6) }}</p>
+          </div>
+          <button @click="closeTicketDetailModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <UIcon name="i-heroicons-x-mark" class="w-6 h-6" />
+          </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="p-6 space-y-6">
+          <!-- Ticket Title -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Título</label>
+            <h4 class="text-lg font-semibold text-gray-900">{{ selectedTicket.title }}</h4>
+          </div>
+
+          <!-- Status Selector -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+            <select
+              :value="selectedTicket.status"
+              @change="handleStatusChange(selectedTicket._id, $event.target.value)"
+              class="w-full px-4 py-2 text-sm font-semibold rounded-lg border-2 focus:ring-2 cursor-pointer transition-colors"
+              :class="getSelectStatusClass(selectedTicket.status)"
+              style="focus:ring-color: #7db88a;"
+            >
+              <option value="open">Abierto</option>
+              <option value="in_progress">En Progreso</option>
+              <option value="resolved">Resuelto</option>
+              <option value="closed">Cerrado</option>
+            </select>
+          </div>
+
+          <!-- Priority and Date -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Prioridad</label>
+              <div class="flex items-center space-x-2">
+                <UIcon name="i-heroicons-exclamation-triangle" class="w-5 h-5" :class="getPriorityIconClass(selectedTicket.priority)" />
+                <span :class="getPriorityClass(selectedTicket.priority)" class="text-base font-medium uppercase">
+                  {{ selectedTicket.priority }}
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Creación</label>
+              <div class="flex items-center space-x-2 text-gray-600">
+                <UIcon name="i-heroicons-calendar" class="w-5 h-5" />
+                <span class="text-base">{{ formatDate(selectedTicket.createdAt) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <p class="text-gray-700 whitespace-pre-wrap">{{ selectedTicket.description || 'Sin descripción' }}</p>
+            </div>
+          </div>
+
+          <!-- User Information -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Creado por</label>
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden flex-shrink-0">
+                  <img
+                    v-if="selectedTicket.createdBy?.profilePhoto"
+                    :src="selectedTicket.createdBy.profilePhoto"
+                    :alt="selectedTicket.createdBy.name"
+                    class="w-full h-full object-cover"
+                  />
+                  <span v-else class="text-lg font-medium text-gray-700 uppercase">
+                    {{ selectedTicket.createdBy?.name?.charAt(0) }}
+                  </span>
+                </div>
+                <div class="flex-1">
+                  <p class="text-base font-semibold text-gray-900">{{ selectedTicket.createdBy?.name }}</p>
+                  <p class="text-sm text-gray-600">{{ selectedTicket.createdBy?.email }}</p>
+                  <p class="text-xs text-gray-500">{{ selectedTicket.createdBy?.department || 'Sin departamento' }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category (if exists) -->
+          <div v-if="selectedTicket.category">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
+            <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+              {{ selectedTicket.category }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-end">
+          <button
+            @click="closeTicketDetailModal"
+            class="px-6 py-2 text-white rounded-md transition-colors"
+            style="background-color: #7db88a;"
+            onmouseover="this.style.backgroundColor='#6ba378'"
+            onmouseout="this.style.backgroundColor='#7db88a'"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -356,72 +410,78 @@ definePageMeta({
 })
 
 const { user, logout } = useAuth()
-const { allTickets, loading, fetchTickets, updateTicket, getTicketsCountByUser } = useTickets()
+const { allTickets, loading, fetchTickets, updateTicket } = useTickets()
 
 // Sidebar visibility
 const sidebarVisible = ref(false)
 
-// Estado para el modal de tickets
-const showUserTicketsModal = ref(false)
-const selectedUser = ref(null)
-const selectedUserTickets = ref([])
-const ticketChanges = ref({})
+// Filters
+const dateFilter = ref('newest')
+const priorityFilter = ref('all')
+const statusFilter = ref('all')
+
+// Modal state
+const showTicketDetailModal = ref(false)
+const selectedTicket = ref(null)
 
 // Cargar tickets al montar
 onMounted(async () => {
   await fetchTickets()
 })
 
-// Obtener lista única de usuarios desde los tickets
-const usersList = computed(() => {
-  const usersMap = new Map()
-  allTickets.value.forEach(ticket => {
-    if (ticket.createdBy && !usersMap.has(ticket.createdBy._id)) {
-      usersMap.set(ticket.createdBy._id, ticket.createdBy)
-    }
-  })
-  return Array.from(usersMap.values())
-})
-
-const totalUsers = computed(() => usersList.value.length)
-const adminUsers = computed(() => usersList.value.filter(u => u.role === 'admin').length)
-const regularUsers = computed(() => usersList.value.filter(u => u.role === 'user').length)
-
 const handleLogout = () => {
   logout()
   navigateTo('/login')
 }
 
-// Funciones para manejo de tickets por usuario
-const getUserTicketsCount = (userId) => {
-  return allTickets.value.filter(
-    ticket => ticket.createdBy?._id === userId && ticket.status !== 'closed'
-  ).length
+// Computed property para filtrar y ordenar tickets
+const filteredTickets = computed(() => {
+  let tickets = [...allTickets.value]
+
+  // Filtrar por prioridad
+  if (priorityFilter.value !== 'all') {
+    tickets = tickets.filter(ticket => ticket.priority === priorityFilter.value)
+  }
+
+  // Filtrar por estado
+  if (statusFilter.value !== 'all') {
+    tickets = tickets.filter(ticket => ticket.status === statusFilter.value)
+  }
+
+  // Ordenar por fecha
+  tickets.sort((a, b) => {
+    const dateA = new Date(a.createdAt)
+    const dateB = new Date(b.createdAt)
+
+    if (dateFilter.value === 'newest') {
+      return dateB - dateA // Más recientes primero
+    } else {
+      return dateA - dateB // Más antiguos primero
+    }
+  })
+
+  return tickets
+})
+
+// Función para abrir el modal de detalles
+const openTicketDetailModal = (ticket) => {
+  selectedTicket.value = ticket
+  showTicketDetailModal.value = true
 }
 
-const viewUserTickets = (userToView) => {
-  selectedUser.value = userToView
-  selectedUserTickets.value = allTickets.value.filter(ticket =>
-    ticket.createdBy?._id === userToView._id && ticket.status !== 'closed'
-  )
-  showUserTicketsModal.value = true
-}
-
-const closeUserTicketsModal = () => {
-  showUserTicketsModal.value = false
-  selectedUser.value = null
-  selectedUserTickets.value = []
-  ticketChanges.value = {}
+// Función para cerrar el modal de detalles
+const closeTicketDetailModal = () => {
+  showTicketDetailModal.value = false
+  selectedTicket.value = null
 }
 
 // Función para cambiar el estado de un ticket
 const handleStatusChange = async (ticketId, newStatus) => {
   const result = await updateTicket(ticketId, { status: newStatus.toLowerCase() })
   if (result.success) {
-    // Actualizar en la lista del modal
-    const modalTicketIndex = selectedUserTickets.value.findIndex(t => t._id === ticketId)
-    if (modalTicketIndex !== -1) {
-      selectedUserTickets.value[modalTicketIndex] = result.ticket
+    // Actualizar el ticket seleccionado si está en el modal
+    if (selectedTicket.value && selectedTicket.value._id === ticketId) {
+      selectedTicket.value = { ...selectedTicket.value, status: newStatus.toLowerCase() }
     }
   } else {
     alert('Error al actualizar estado: ' + result.error)
@@ -440,6 +500,16 @@ const getStatusClass = (status) => {
 }
 
 const getPriorityClass = (priority) => {
+  const classes = {
+    'low': 'text-green-600',
+    'medium': 'text-yellow-600',
+    'high': 'text-red-600',
+    'urgent': 'text-red-800'
+  }
+  return classes[priority] || 'text-gray-600'
+}
+
+const getPriorityIconClass = (priority) => {
   const classes = {
     'low': 'text-green-600',
     'medium': 'text-yellow-600',
@@ -468,3 +538,30 @@ const getSelectStatusClass = (status) => {
   return classes[status] || 'bg-gray-100 text-gray-800'
 }
 </script>
+
+<style scoped>
+/* Custom scrollbar styles - light theme */
+.max-h-\[90vh\]::-webkit-scrollbar {
+  width: 8px;
+}
+
+.max-h-\[90vh\]::-webkit-scrollbar-track {
+  background: #f3f4f6; /* gray-100 */
+  border-radius: 4px;
+}
+
+.max-h-\[90vh\]::-webkit-scrollbar-thumb {
+  background: #d1d5db; /* gray-300 */
+  border-radius: 4px;
+}
+
+.max-h-\[90vh\]::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af; /* gray-400 */
+}
+
+/* For Firefox */
+.max-h-\[90vh\] {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f3f4f6;
+}
+</style>

@@ -691,4 +691,29 @@ textarea.green-focus:focus {
 .green-focus::placeholder {
   color: #9ca3af !important; /* gray-400 */
 }
+
+/* Custom scrollbar styles - light theme */
+.max-h-\[90vh\]::-webkit-scrollbar {
+  width: 8px;
+}
+
+.max-h-\[90vh\]::-webkit-scrollbar-track {
+  background: #f3f4f6; /* gray-100 */
+  border-radius: 4px;
+}
+
+.max-h-\[90vh\]::-webkit-scrollbar-thumb {
+  background: #d1d5db; /* gray-300 */
+  border-radius: 4px;
+}
+
+.max-h-\[90vh\]::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af; /* gray-400 */
+}
+
+/* For Firefox */
+.max-h-\[90vh\] {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f3f4f6;
+}
 </style>

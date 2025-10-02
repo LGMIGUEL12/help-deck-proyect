@@ -216,7 +216,8 @@
                 </p>
               </div>
               <!-- Filter Options -->
-              <div class="flex items-center space-x-4">
+              <div class="flex flex-wrap items-center gap-3">
+                <!-- Filtro por Período -->
                 <select
                   v-model="selectedPeriod"
                   class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white text-gray-700 text-sm"
@@ -226,6 +227,30 @@
                   <option value="lastMonth">Mes pasado</option>
                   <option value="thisYear">Este año</option>
                 </select>
+
+                <!-- Filtro por Prioridad -->
+                <select
+                  v-model="selectedPriority"
+                  class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white text-gray-700 text-sm"
+                >
+                  <option value="all">Todas las prioridades</option>
+                  <option value="urgent">Urgente</option>
+                  <option value="high">Alta</option>
+                  <option value="medium">Media</option>
+                  <option value="low">Baja</option>
+                </select>
+
+                <!-- Filtro por Estado -->
+                <select
+                  v-model="selectedStatus"
+                  class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white text-gray-700 text-sm"
+                >
+                  <option value="all">Todos los estados</option>
+                  <option value="resolved">Resuelto</option>
+                  <option value="closed">Cerrado</option>
+                </select>
+
+                <!-- Filtro por Usuario (solo admin) -->
                 <select
                   v-if="user?.role === 'admin'"
                   v-model="selectedUser"
@@ -332,8 +357,8 @@
 
     <!-- Modal para ver detalles del ticket (solo lectura) -->
     <div v-if="showViewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-lg w-full max-w-2xl mx-auto max-h-[90vh] overflow-hidden">
-        <div class="flex justify-between items-center p-6 border-b">
+      <div class="bg-white rounded-lg w-full max-w-2xl mx-auto max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <div class="sticky top-0 bg-white flex justify-between items-center p-6 border-b z-10">
           <div>
             <h3 class="text-lg font-medium text-gray-900">Detalles del Ticket #{{ selectedTicket?._id?.slice(-6) }}</h3>
             <p class="text-sm text-gray-500 mt-1">Vista de solo lectura - Ticket cerrado</p>
@@ -343,7 +368,7 @@
           </button>
         </div>
 
-        <div class="overflow-y-auto max-h-[70vh] p-6">
+        <div class="p-6">
           <!-- Información básica del ticket -->
           <div class="space-y-6">
             <!-- Subject -->
@@ -433,10 +458,13 @@
           </div>
         </div>
 
-        <div class="flex justify-end items-center p-6 border-t bg-gray-50">
+        <div class="sticky bottom-0 bg-gray-50 flex justify-end items-center p-6 border-t z-10">
           <button
             @click="closeViewModal"
-            class="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+            class="px-6 py-2 text-white rounded-md transition-colors"
+            style="background-color: #7db88a;"
+            onmouseover="this.style.backgroundColor='#6ba378'"
+            onmouseout="this.style.backgroundColor='#7db88a'"
           >
             Cerrar
           </button>
@@ -460,6 +488,8 @@ const sidebarVisible = ref(false)
 // Filter states
 const selectedPeriod = ref('all')
 const selectedUser = ref('all')
+const selectedPriority = ref('all')
+const selectedStatus = ref('all')
 
 // Modal states
 const showViewModal = ref(false)
@@ -505,6 +535,16 @@ const filteredTickets = computed(() => {
   // Filter by user (admin only)
   if (user.value?.role === 'admin' && selectedUser.value !== 'all') {
     filtered = filtered.filter(ticket => ticket.createdBy?._id === selectedUser.value)
+  }
+
+  // Filter by priority
+  if (selectedPriority.value !== 'all') {
+    filtered = filtered.filter(ticket => ticket.priority === selectedPriority.value)
+  }
+
+  // Filter by status
+  if (selectedStatus.value !== 'all') {
+    filtered = filtered.filter(ticket => ticket.status === selectedStatus.value)
   }
 
   // Filter by period
@@ -634,5 +674,30 @@ const closeViewModal = () => {
 select:focus {
   border-color: #7db88a !important;
   box-shadow: 0 0 0 2px rgba(125, 184, 138, 0.3) !important;
+}
+
+/* Custom scrollbar styles - light theme */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f3f4f6; /* gray-100 */
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #d1d5db; /* gray-300 */
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af; /* gray-400 */
+}
+
+/* For Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f3f4f6;
 }
 </style>
