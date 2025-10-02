@@ -194,24 +194,35 @@ const config = useRuntimeConfig()
 
 // Inicializar Google Sign-In
 onMounted(() => {
-  if (window.google) {
-    window.google.accounts.id.initialize({
-      client_id: config.public.googleClientId,
-      callback: handleGoogleCallback,
-      auto_select: false
-    })
+  const initGoogle = () => {
+    if (window.google && window.google.accounts) {
+      try {
+        window.google.accounts.id.initialize({
+          client_id: config.public.googleClientId,
+          callback: handleGoogleCallback,
+          auto_select: false
+        })
 
-    window.google.accounts.id.renderButton(
-      document.getElementById('googleButtonContainer'),
-      {
-        theme: 'outline',
-        size: 'large',
-        width: '100%',
-        text: 'continue_with',
-        shape: 'rectangular'
+        const container = document.getElementById('googleButtonContainer')
+        if (container) {
+          window.google.accounts.id.renderButton(container, {
+            theme: 'outline',
+            size: 'large',
+            width: '100%',
+            text: 'continue_with',
+            shape: 'rectangular'
+          })
+        }
+      } catch (error) {
+        console.error('Error initializing Google Sign-In:', error)
       }
-    )
+    } else {
+      // Si el script aún no está cargado, esperar un poco y reintentar
+      setTimeout(initGoogle, 100)
+    }
   }
+
+  initGoogle()
 })
 
 // Callback para manejar la respuesta de Google
