@@ -14,7 +14,9 @@
       "Bash(mongosh:*)",
       "Bash(netstat:*)",
       "Bash(node -e \"console.log(require(''crypto'').randomBytes(64).toString(''hex''))\")",
-      "Bash(node -e \"console.log(require(''crypto'').randomBytes(32).toString(''hex''))\")"
+      "Bash(node -e \"console.log(require(''crypto'').randomBytes(32).toString(''hex''))\")",
+      "Bash(copy:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
