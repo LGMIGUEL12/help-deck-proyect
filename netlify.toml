@@ -1,24 +1,11 @@
 # Configuración de Netlify para Nuxt 3
 [build]
   command = "npm run build"
-  publish = ".output/public"
+  publish = "dist"
 
-# Configuración de funciones serverless
-[functions]
-  # Directorio donde Nuxt genera las funciones serverless (ajustado para nuevo preset)
-  node_bundler = "esbuild"
-
-# Variables de entorno por defecto (SOBRESCRIBIR en Netlify UI)
+# Variables de entorno por defecto
 [build.environment]
   NODE_VERSION = "20"
-  NPM_FLAGS = "--legacy-peer-deps"
-
-# Reglas de redirección para SPA
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = false
 
 # Headers de seguridad
 [[headers]]
@@ -29,7 +16,7 @@
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
     # Permitir Google OAuth
-    Cross-Origin-Opener-Policy = "same-origin-allow-popups"
+    Cross-Origin-Opener-Policy = "unsafe-none"
     Cross-Origin-Embedder-Policy = "unsafe-none"
 
 # Headers específicos para archivos estáticos
