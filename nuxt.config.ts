@@ -17,7 +17,11 @@ export default defineNuxtConfig({
   },
   nitro: {
     preset: 'netlify',
-    prerender: { crawlLinks: true },
+    prerender: {
+      crawlLinks: true,
+      // Ignorar errores de base de datos durante el prerender
+      failOnError: false
+    },
     storage: {
       clips: {
         driver: "fs",
@@ -27,7 +31,7 @@ export default defineNuxtConfig({
     routeRules: {
       '/**': {
         headers: {
-          'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+          'Cross-Origin-Opener-Policy': 'unsafe-none',
           'Cross-Origin-Embedder-Policy': 'unsafe-none'
         }
       }

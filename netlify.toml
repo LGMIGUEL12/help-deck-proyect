@@ -5,9 +5,7 @@
 
 # Configuración de funciones serverless
 [functions]
-  # Directorio donde Nuxt genera las funciones serverless
-  directory = ".output/server"
-  # Aumentar timeout para operaciones de base de datos
+  # Directorio donde Nuxt genera las funciones serverless (ajustado para nuevo preset)
   node_bundler = "esbuild"
 
 # Variables de entorno por defecto (SOBRESCRIBIR en Netlify UI)

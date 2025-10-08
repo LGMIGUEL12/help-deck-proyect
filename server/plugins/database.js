@@ -8,6 +8,12 @@ export default defineNitroPlugin(async (nitroApp) => {
   // Solo ejecutar una vez al inicio
   if (initialized) return
 
+  // No conectar durante el prerender/build
+  if (process.env.NITRO_PRESET === 'netlify' && !process.env.NETLIFY_DEV) {
+    console.log('⏭️ Saltando inicialización de DB durante el build')
+    return
+  }
+
   try {
     // Conectar a MongoDB al iniciar el servidor
     await connectDB()

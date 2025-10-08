@@ -92,7 +92,7 @@ Esta guía te ayudará a desplegar tu aplicación Nuxt 3 con MongoDB Atlas en Ne
 ---
 
 id-cliente: 34711366814-82ch5e5uv93cm28qvns306r0f9rb9qgk.apps.googleusercontent.com
-secreto de cliente: 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
+secreto de cliente: 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
 
 ## 🌐 PASO 3: Desplegar en Netlify
 
@@ -119,7 +119,7 @@ Ve a **Site settings** > **Environment variables** y agrega:
 | `JWT_SECRET`                   | `43ddf76f8a8ca3a62f02a3c296014173a1d90467cfd5fffe716189e6da421dd26cf3267442b2e4fc9f2e69b01f9c8ce24e54af43acf33a0ecc8fe57e0022a427`   |
 | `NUXT_SECRET_KEY`              | `c2f07a75a24e9e0d5a033e013ef3e0b59d747b7267ee23070ba0f76c7f09c845`                                                                   |
 | `GOOGLE_CLIENT_ID`             | `34711366814-82ch5e5uv93cm28qvns306r0f9rb9qgk.apps.googleusercontent.com`                                                            |
-| `GOOGLE_CLIENT_SECRET`         | `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`                                                                                                |
+| `GOOGLE_CLIENT_SECRET`         | `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`                                                                                                |
 | `NUXT_PUBLIC_GOOGLE_CLIENT_ID` | `34711366814-82ch5e5uv93cm28qvns306r0f9rb9qgk.apps.googleusercontent.com`                                                            |
 | `BCRYPT_SALT_ROUNDS`           | `12`                                                                                                                                 |
 
@@ -142,7 +142,7 @@ MONGODB_URI=mongodb+srv://helpdesk_user:adPB6NgaDkhU2bcE@cluster0.3oiu2xe.mongod
 JWT_SECRET=43ddf76f8a8ca3a62f02a3c296014173a1d90467cfd5fffe716189e6da421dd26cf3267442b2e4fc9f2e69b01f9c8ce24e54af43acf33a0ecc8fe57e0022a427
 NUXT_SECRET_KEY=c2f07a75a24e9e0d5a033e013ef3e0b59d747b7267ee23070ba0f76c7f09c845
 GOOGLE_CLIENT_ID=34711366814-82ch5e5uv93cm28qvns306r0f9rb9qgk.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=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
+GOOGLE_CLIENT_SECRET=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
 NUXT_PUBLIC_GOOGLE_CLIENT_ID=34711366814-82ch5e5uv93cm28qvns306r0f9rb9qgk.apps.googleusercontent.com
 ```
 
