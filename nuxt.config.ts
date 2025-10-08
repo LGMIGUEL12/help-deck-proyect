@@ -18,9 +18,9 @@ export default defineNuxtConfig({
   nitro: {
     preset: 'netlify',
     prerender: {
-      crawlLinks: true,
-      // Ignorar errores de base de datos durante el prerender
-      failOnError: false
+      crawlLinks: false,
+      // Rutas específicas a prerrenderizar (solo las que no requieren DB)
+      routes: ['/login', '/home']
     },
     storage: {
       clips: {
@@ -34,7 +34,12 @@ export default defineNuxtConfig({
           'Cross-Origin-Opener-Policy': 'unsafe-none',
           'Cross-Origin-Embedder-Policy': 'unsafe-none'
         }
-      }
+      },
+      // No prerrenderizar rutas que requieren autenticación o DB
+      '/api/**': { prerender: false },
+      '/tickets': { prerender: false },
+      '/admin': { prerender: false },
+      '/users': { prerender: false }
     }
   },
   typescript: {

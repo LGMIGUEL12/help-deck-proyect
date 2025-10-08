@@ -10,7 +10,13 @@ export const connectDB = async () => {
 
   try {
     const config = useRuntimeConfig()
-    const mongoUri = config.mongodbUri || process.env.MONGODB_URI || 'mongodb://localhost:27017/helpdesk_db'
+    const mongoUri = config.mongodbUri || process.env.MONGODB_URI
+
+    // Si no hay URI de MongoDB, no intentar conectar (útil durante prerender)
+    if (!mongoUri || mongoUri.includes('undefined')) {
+      console.log('⚠️ MongoDB URI no configurada, saltando conexión')
+      return
+    }
 
     await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 5000,

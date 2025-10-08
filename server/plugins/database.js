@@ -9,8 +9,11 @@ export default defineNitroPlugin(async (nitroApp) => {
   if (initialized) return
 
   // No conectar durante el prerender/build
-  if (process.env.NITRO_PRESET === 'netlify' && !process.env.NETLIFY_DEV) {
-    console.log('⏭️ Saltando inicialización de DB durante el build')
+  // En Netlify, durante el build no hay variables de entorno de runtime
+  const isPrerendering = process.env.PRERENDER || import.meta.prerender
+
+  if (isPrerendering) {
+    console.log('⏭️ Saltando inicialización de DB durante el prerender')
     return
   }
 
