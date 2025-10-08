@@ -7,10 +7,11 @@ export default defineNuxtConfig({
     colors: ['green', 'cyan']
   },
   runtimeConfig: {
-    mongodbUri: process.env.MONGODB_URI || 'mongodb://localhost:27017/helpdesk_db',
-    jwtSecret: process.env.JWT_SECRET || 'tu_clave_secreta_muy_segura_aqui',
+    mongodbUri: process.env.MONGODB_URI,
+    jwtSecret: process.env.JWT_SECRET,
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '24h',
     googleClientId: process.env.GOOGLE_CLIENT_ID,
+    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
     public: {
       googleClientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID
     }

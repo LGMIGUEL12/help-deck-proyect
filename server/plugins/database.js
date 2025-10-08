@@ -9,7 +9,6 @@ export default defineNitroPlugin(async (nitroApp) => {
   if (initialized) return
 
   // No conectar durante el prerender/build
-  // En Netlify, durante el build no hay variables de entorno de runtime
   const isPrerendering = process.env.PRERENDER || import.meta.prerender
 
   if (isPrerendering) {
@@ -17,8 +16,16 @@ export default defineNitroPlugin(async (nitroApp) => {
     return
   }
 
+  // En Netlify Functions, no inicializar aquí, se hace on-demand
+  // Esto es porque las funciones serverless se ejecutan en contenedores separados
+  if (process.env.NETLIFY) {
+    console.log('⏭️ Saltando inicialización de DB en Netlify Functions (on-demand)')
+    initialized = true
+    return
+  }
+
   try {
-    // Conectar a MongoDB al iniciar el servidor
+    // Conectar a MongoDB al iniciar el servidor (solo en entornos no-serverless)
     await connectDB()
 
     // Ejecutar seed si es necesario (solo crea usuarios si no existen)
